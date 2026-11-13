@@ -288,8 +288,9 @@ const shuffle = a => { const b = [...a]; for (let i = b.length - 1; i > 0; i--) 
    shared=false -> private to this player (profile, progress)
    --------------------------------------------------------------------- */
 const CONFIG = {
-  SUPABASE_URL: 'https://bphggrlrfsoiwmgiwxyx.supabase.co',  sb_publishable_Imt8_EI6xu8-yBoPesI8Fw_dWQJAF8N     // e.g. 'https://abcdefgh.supabase.co'
-  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpd2JvdWZlY2pmcHh1dnVrd21wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEzMDg1MTUsImV4cCI6MjEwNjg4NDUxNX0.yKWKxuaLSuhjCaNrMdvfmJp_FjqO6b9Mo95xOT7lGco'   // the anon / publishable key (it is safe to publish)
+  const CONFIG = {
+  SUPABASE_URL: 'https://bphggrlrfsoiwmgiwxyx.supabase.co', // e.g. 'https://abcdefgh.supabase.co'
+  SUPABASE_ANON_KEY: 'sb_publishable_Imt8_EI6xu8-yBoPesI8Fw_dWQJAF8N' // the anon / publishable key (it is safe to publish)
 };
 const ONLINE = !!(CONFIG.SUPABASE_URL && CONFIG.SUPABASE_ANON_KEY);
 const enc = encodeURIComponent;
