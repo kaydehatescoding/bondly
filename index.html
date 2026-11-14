@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bondly: choose your syllabus</title>
+<meta name="description" content="Bondly: quick quiz lessons for biology and chemistry. Choose STPM or A-Level.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Cpolygon points=%2750,6 88,28 88,72 50,94 12,72 12,28%27 fill=%27none%27 stroke=%27%232563eb%27 stroke-width=%2710%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:wght@400;500;700&display=swap');
+:root{--ink:#15213b;--ink2:#4d5a78;--paper:#f1f5f9;--line:#d5dde8;--stpm:#5b3fd6;--stpm-d:#3d27a6;--alv:#7a1c2b;--alv-d:#5a1220}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{font-family:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--ink);font-size:16px;line-height:1.45;min-height:100vh;min-height:100dvh;
+  background-color:var(--paper);background-image:linear-gradient(rgba(21,33,59,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(21,33,59,.05) 1px,transparent 1px);background-size:24px 24px;
+  padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+main{max-width:720px;margin:0 auto;padding:44px 20px 40px}
+.ring{width:84px;height:84px;display:block;margin:0 0 14px}
+h1{font-family:'Bricolage Grotesque','DM Sans',system-ui,sans-serif;font-size:46px;font-weight:800;letter-spacing:-.01em;line-height:1.05;margin:0}
+.tag{font-size:19px;color:var(--ink2);margin:8px 0 30px;max-width:22em}
+h2{font-family:'Bricolage Grotesque','DM Sans',system-ui,sans-serif;font-size:20px;margin:0 0 12px}
+.pick{display:grid;gap:14px;grid-template-columns:1fr 1fr}
+.opt{display:block;text-decoration:none;color:#fff;border-radius:20px;padding:22px 20px 24px;min-height:190px;transition:transform .08s,box-shadow .08s}
+.opt.stpm{background:var(--stpm);box-shadow:0 6px 0 var(--stpm-d)}
+.opt.alv{background:var(--alv);box-shadow:0 6px 0 var(--alv-d)}
+.opt:active{transform:translateY(5px)}.opt.stpm:active{box-shadow:0 1px 0 var(--stpm-d)}.opt.alv:active{box-shadow:0 1px 0 var(--alv-d)}
+.opt:focus-visible{outline:3px solid #f5b82a;outline-offset:3px}
+.opt b{display:block;font-family:'Bricolage Grotesque','DM Sans',system-ui,sans-serif;font-size:32px;font-weight:800;line-height:1.1;margin-bottom:8px}
+.opt span{display:block;font-size:16px;opacity:.92}
+.opt small{display:block;margin-top:14px;font-size:14px;font-weight:700;opacity:.8}
+.fine{font-size:14px;color:var(--ink2);margin-top:26px}
+@media (max-width:520px){.pick{grid-template-columns:1fr}.opt{min-height:0}h1{font-size:40px}}
+</style>
+</head>
+<body>
+<main>
+  <svg class="ring" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,6 88,28 88,72 50,94 12,72 12,28" fill="none" stroke="#2563eb" stroke-width="10" stroke-linejoin="round"/></svg>
+  <h1>Bondly</h1>
+  <p class="tag">Biology and chemistry, one streak at a time.</p>
+  <h2>Choose your syllabus</h2>
+  <div class="pick">
+    <a class="opt stpm" href="indexSTPM.html"><b>STPM</b><span>Chemistry 962 in three semesters, from atoms to organic reactions, plus biology.</span><small>Semesters 1 to 3</small></a>
+    <a class="opt alv" href="indexALEVEL.html"><b>A-Level</b><span>Cambridge A-Level Chemistry 9701 in physical, inorganic and organic stages, plus biology.</span><small>Physical, inorganic, organic</small></a>
+  </div>
+  <p class="fine">One account works on both. Each syllabus has its own leaderboard, and Overall adds them together.</p>
+</main>
+</body>
+</html>

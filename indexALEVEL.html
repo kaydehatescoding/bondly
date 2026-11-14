@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bondly: learn biology and chemistry</title>
+<meta name="description" content="Bondly: quick quiz lessons for A-Level chemistry and biology, with streaks and a leaderboard.">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Cpolygon points=%2750,6 88,28 88,72 50,94 12,72 12,28%27 fill=%27none%27 stroke=%27%232563eb%27 stroke-width=%2710%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:wght@400;500;700&display=swap');
+
+:root{
+  --ink:#15213b; --ink2:#4d5a78; --paper:#f1f5f9; --card:#fff; --line:#d5dde8;
+  --chem:#5b3fd6; --chem-d:#3d27a6; --chem-l:#ece8fc;
+  --bio:#16945f; --bio-d:#0d6a43; --bio-l:#e0f4ea;
+  --ok:#1fa35b; --ok-d:#137a41; --ok-l:#dcf4e6;
+  --bad:#e0452b; --bad-d:#ae2b15; --bad-l:#fde4de;
+  --gold:#f5b82a; --gold-d:#c28a08;
+  --accent:var(--chem); --accent-d:var(--chem-d); --accent-l:var(--chem-l);
+}
+body.bio{ --accent:var(--bio); --accent-d:var(--bio-d); --accent-l:var(--bio-l); }
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{
+  font-family:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  color:var(--ink);font-size:16px;line-height:1.45;min-height:100vh;min-height:100dvh;
+  background-color:var(--paper);
+  background-image:linear-gradient(rgba(21,33,59,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(21,33,59,.05) 1px,transparent 1px);
+  background-size:24px 24px;
+}
+h1,h2,h3,.disp{font-family:'Bricolage Grotesque','DM Sans',system-ui,sans-serif;letter-spacing:-.01em;margin:0;line-height:1.12}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+#app{max-width:540px;margin:0 auto;min-height:100vh;min-height:100dvh;position:relative}
+.main{padding:14px 16px 110px}
+
+/* buttons */
+.btn{display:block;width:100%;border:0;border-radius:15px;padding:14px 18px;font-weight:800;font-size:16px;background:var(--accent);color:#fff;box-shadow:0 5px 0 var(--accent-d);text-align:center;transition:transform .06s,box-shadow .06s}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--accent-d)}
+.btn.ghost{background:#fff;color:var(--ink);border:2px solid var(--line);box-shadow:0 4px 0 var(--line)}
+.btn.ghost:active{box-shadow:0 0 0 var(--line)}
+.btn.ok{background:var(--ok);box-shadow:0 5px 0 var(--ok-d)}
+.btn.bad{background:var(--bad);box-shadow:0 5px 0 var(--bad-d)}
+.btn.small{display:inline-block;width:auto;padding:9px 14px;font-size:14px;border-radius:12px;box-shadow:0 3px 0 var(--accent-d)}
+.btn.small.ghost{box-shadow:0 3px 0 var(--line)}
+.btn[disabled]{opacity:.5;pointer-events:none}
+.row{display:flex;gap:10px}
+.row>*{flex:1}
+
+/* login */
+.login{padding:36px 22px 40px}
+.login .ring{width:92px;height:92px;display:block;margin:0 0 14px}
+.login h1{font-size:44px;font-weight:800}
+.login .tag{font-size:19px;color:var(--ink2);margin:8px 0 26px;max-width:22em}
+label.f{display:block;font-weight:700;font-size:14px;margin:14px 0 6px}
+label.f small{font-weight:400;color:var(--ink2)}
+input[type=text],input[type=email],textarea,select{width:100%;font:inherit;color:var(--ink);background:#fff;border:2px solid var(--line);border-radius:13px;padding:12px 14px}
+input:focus,textarea:focus,select:focus{border-color:var(--accent)}
+textarea{resize:vertical;min-height:84px}
+.err{color:var(--bad-d);font-weight:700;font-size:14px;min-height:20px;margin:10px 0}
+.fine{font-size:13px;color:var(--ink2);margin-top:14px}
+
+/* top area */
+.top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.seg{flex:1;display:flex;background:#fff;border:2px solid var(--line);border-radius:15px;padding:3px;gap:3px}
+.seg button{flex:1;border:0;background:none;border-radius:11px;padding:9px 6px;font-weight:700;color:var(--ink2)}
+.seg button.on{background:var(--accent);color:#fff}
+.chip.total{background:var(--gold);color:#4a3300;font-weight:800;border-radius:999px;padding:8px 13px;white-space:nowrap}
+.semtabs{display:flex;gap:8px;margin-bottom:12px}
+.semtabs button{flex:1;border:2px solid var(--line);background:#fff;border-radius:12px;padding:8px 4px;font-weight:700;font-size:14px;color:var(--ink2)}
+.semtabs button.on{border-color:var(--accent);color:var(--accent-d);background:var(--accent-l)}
+.sembanner{background:var(--accent);color:#fff;border-radius:18px;padding:16px 18px;box-shadow:0 5px 0 var(--accent-d)}
+.sembanner h2{font-size:24px}
+.sembanner .n{font-size:14px;opacity:.85;margin-bottom:2px}
+.sembanner p.b{font-size:15px;margin-top:6px;opacity:.95}
+
+/* path */
+.path{padding:6px 0 4px}
+.step{display:flex;flex-direction:column;align-items:center;margin:20px 0 4px;transform:translateX(var(--dx,0))}
+.hex{position:relative;width:84px;height:102px;border:0;background:none;padding:0}
+.hex .hb,.hex .hf{position:absolute;left:0;width:84px;height:96px;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)}
+.hex .hb{top:6px;background:var(--accent-d)}
+.hex .hf{top:0;background:var(--accent);display:grid;place-items:center;font-size:32px;transition:transform .07s}
+.hex:active .hf{transform:translateY(5px)}
+.hex.locked .hb{background:#b3bfce}
+.hex.locked .hf{background:#d5dce7;font-size:26px}
+.hex.soon .hb{background:#b3bfce}
+.hex.soon .hf{background:#d5dce7;font-size:28px;filter:grayscale(1);opacity:.8}
+.soonlbl{font-size:12px;font-weight:700;color:var(--ink2);margin-top:2px}
+.hex.done .hb{background:var(--gold-d)}
+.hex.done .hf{background:var(--gold)}
+.hex.current .hf{animation:pulse 1.9s ease-in-out infinite}
+@keyframes pulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.18)}}
+.sl{font-weight:700;font-size:14px;margin-top:6px;text-align:center;max-width:150px}
+.stars{color:var(--gold-d);letter-spacing:2px;font-size:15px}
+.mmhead{margin:34px 0 4px;background:var(--ink);color:#fff;border-radius:18px;padding:16px 18px}
+.mmhead h3{font-size:21px;margin-bottom:6px}
+.mmhead p{font-size:14px;opacity:.88}
+
+/* tabs */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;justify-content:center;background:#7a1c2b;border-top:2px solid #5a1220;padding-bottom:env(safe-area-inset-bottom)}
+.tabs .in{display:flex;width:100%;max-width:540px}
+.tabs button{flex:1;border:0;background:none;padding:9px 2px 8px;color:rgba(255,255,255,.72);font-size:12px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:2px}
+.tabs button span{font-size:22px;line-height:1.1}
+.tabs button.on{color:#fff;box-shadow:inset 0 3px 0 var(--gold)}
+
+/* sheet */
+.overlay{position:fixed;inset:0;background:rgba(21,33,59,.5);z-index:40;display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:100%;max-width:540px;background:#fff;border-radius:24px 24px 0 0;padding:22px 20px calc(22px + env(safe-area-inset-bottom));animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.sheet .ic{font-size:40px}
+.sheet h3{font-size:24px;margin:4px 0 2px}
+.sheet .sub{color:var(--ink2);font-size:14px;margin-bottom:12px}
+.stats{display:flex;gap:10px;margin:12px 0 18px}
+.stat{flex:1;border:2px solid var(--line);border-radius:14px;padding:9px 10px}
+.stat b{display:block;font-family:'Bricolage Grotesque',sans-serif;font-size:22px}
+.stat span{font-size:12px;color:var(--ink2)}
+
+/* lesson */
+.play{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;padding:14px 16px 330px}
+.ptop{display:flex;align-items:center;gap:12px}
+.x{border:0;background:none;font-size:22px;color:var(--ink2);padding:4px 6px}
+.spectrum{flex:1;height:14px;border-radius:99px;overflow:hidden;position:relative;background:linear-gradient(90deg,#e0452b,#f0892a,#f5cf3a,#3fb950,#2f8ae0,#6a45d8)}
+.spectrum .cover{position:absolute;right:0;top:0;bottom:0;background:#dfe6ef;transition:width .35s ease}
+.live{display:flex;gap:10px;font-weight:800;font-size:14px;white-space:nowrap}
+.tbar{height:6px;background:#dfe6ef;border-radius:9px;overflow:hidden;margin:16px 0 22px}
+.tbar i{display:block;height:100%;width:100%;background:var(--accent);animation:drain linear forwards}
+@keyframes drain{from{width:100%}to{width:0}}
+.qtag{font-size:13px;font-weight:700;color:var(--accent-d);margin-bottom:6px}
+.qtext{font-size:23px;font-weight:800;font-family:'Bricolage Grotesque','DM Sans',sans-serif;line-height:1.22;margin-bottom:22px}
+.q-figure{display:block;max-width:100%;max-height:260px;object-fit:contain;margin:0 auto 18px;border-radius:12px;background:#fff;border:2px solid var(--line)}
+.opts{display:flex;flex-direction:column;gap:11px}
+.opt{display:flex;gap:12px;align-items:center;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-bottom-width:5px;border-radius:16px;padding:13px 14px;font-weight:500;color:var(--ink)}
+.opt .k{flex:none;width:30px;height:30px;border-radius:9px;border:2px solid var(--line);display:grid;place-items:center;font-weight:800;font-size:14px;color:var(--ink2)}
+.opt:hover{border-color:var(--accent)}
+.opt.ok{background:var(--ok-l);border-color:var(--ok);color:var(--ok-d)}
+.opt.ok .k{border-color:var(--ok);background:var(--ok);color:#fff}
+.opt.bad{background:var(--bad-l);border-color:var(--bad);color:var(--bad-d)}
+.opt.bad .k{border-color:var(--bad);background:var(--bad);color:#fff}
+.opt.dim{opacity:.5}
+.fb{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:540px;z-index:30;padding:16px 18px calc(18px + env(safe-area-inset-bottom));animation:up .2s ease-out}
+.fb.ok{background:var(--ok-l);border-top:3px solid var(--ok)}
+.fb.bad{background:var(--bad-l);border-top:3px solid var(--bad)}
+.fb h3{font-size:21px;margin-bottom:4px}
+.fb.ok h3{color:var(--ok-d)} .fb.bad h3{color:var(--bad-d)}
+.fb .calc{font-weight:700;font-size:14px;margin-bottom:4px}
+.fb .exp{font-size:14px;color:var(--ink2);margin-bottom:12px}
+.fb{max-height:62vh;overflow:auto}
+.fb .why{background:#fff;border:2px solid var(--bad);border-radius:12px;padding:9px 12px;margin:0 0 10px;font-size:14px;color:var(--ink)}
+.fb .why b{display:block;color:var(--bad-d);margin-bottom:2px}
+.lvl{display:inline-block;border-radius:99px;padding:1px 9px;margin-left:6px;font-size:12px;font-weight:800;background:var(--accent-l);color:var(--accent-d)}
+.lvl.l2{background:#fff1cf;color:#8a5d00} .lvl.l3{background:var(--bad-l);color:var(--bad-d)}
+
+/* results */
+.result{padding:40px 22px;text-align:center}
+.result .st{font-size:40px;color:var(--gold-d);letter-spacing:6px}
+.result h2{font-size:32px;margin:8px 0 4px}
+.result .big{font-family:'Bricolage Grotesque',sans-serif;font-size:72px;font-weight:800;color:var(--accent);line-height:1;margin:14px 0 2px}
+.result .lab{color:var(--ink2);font-size:14px}
+.result .stats{margin:22px 0}
+.badge{display:inline-block;background:var(--gold);color:#4a3300;font-weight:800;font-size:13px;border-radius:99px;padding:4px 12px;margin-top:6px}
+
+/* boards, lists */
+h2.pg{font-size:28px;margin:4px 0 4px}
+.sub{color:var(--ink2);font-size:14px}
+.pills{display:flex;gap:8px;margin:14px 0}
+.pills button{border:2px solid var(--line);background:#fff;border-radius:99px;padding:7px 14px;font-weight:700;font-size:14px;color:var(--ink2)}
+.pills button.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.lb{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.lb li{display:flex;align-items:center;gap:12px;background:#fff;border:2px solid var(--line);border-radius:14px;padding:10px 14px}
+.lb li.me{border-color:var(--accent);background:var(--accent-l)}
+.lb .rk{width:30px;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:18px;text-align:center}
+.lb .nm{flex:1;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb .sc{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:18px}
+.rvh{margin:6px 2px 12px;font-size:22px}.rvh2{margin:20px 2px 8px;font-size:17px}
+.rvempty b{display:block;font-size:18px;color:var(--ink);margin:6px 0 4px}
+.rvpick{display:flex;gap:6px}.rvpick button{flex:1;background:#fff;border:2px solid var(--line);border-radius:12px;font-size:26px;line-height:1;padding:8px 4px;color:#c8cfdb}
+.rvpick button.on{color:#f5b301;border-color:var(--gold)}
+.rv .rvst{color:#f5b301;letter-spacing:2px;font-size:18px}.rv p{margin:6px 0}.rvby{font-weight:800;color:var(--ink2);font-size:13px}
+.empty{background:#fff;border:2px dashed var(--line);border-radius:16px;padding:22px;text-align:center;color:var(--ink2)}
+.card{background:#fff;border:2px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:12px}
+.card h3{font-size:18px;margin-bottom:6px}
+.optrow{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.optrow input[type=radio]{width:22px;height:22px;accent-color:var(--ok);flex:none}
+.q-item .qq{font-weight:700;margin:4px 0}
+.q-item ul{margin:4px 0 0;padding-left:20px;font-size:14px;color:var(--ink2)}
+.q-item li.c{color:var(--ok-d);font-weight:700}
+.q-item .meta{font-size:12px;color:var(--ink2)}
+pre.code{background:var(--ink);color:#e8eefc;border-radius:12px;padding:12px;font-size:12px;overflow:auto;white-space:pre-wrap}
+details{margin:10px 0}
+summary{cursor:pointer;font-weight:700;font-size:14px}
+.errlist{font-size:13px;color:var(--bad-d);margin:8px 0;padding-left:18px}
+
+/* profile */
+.who{display:flex;align-items:center;gap:14px;margin:6px 0 16px}
+.av{width:64px;height:64px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:28px;box-shadow:0 4px 0 var(--accent-d)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.av{overflow:hidden;flex:none}
+.av img{width:100%;height:100%;object-fit:cover;display:block}
+.animalbtn{border:2px solid var(--line);background:#fff;color:var(--ink);border-radius:999px;padding:4px 12px;font:inherit;font-size:13px;cursor:pointer}.animalbtn b{color:var(--accent-d)}
+.fm{position:fixed;inset:0;background:rgba(20,10,12,.55);display:none;place-items:center;z-index:80;padding:20px}.fm.on{display:grid}
+.fmbox{background:#fff;color:var(--ink);border-radius:22px;max-width:360px;width:100%;padding:22px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+.fmbox .av{width:84px;height:84px;margin:0 auto 8px}.fmbox h3{margin:0;font-size:22px}.fmk{font-weight:800;color:var(--accent-d);margin-top:4px}
+.fmbox p{font-size:16px;line-height:1.45;margin:10px 0 6px}.fmn{font-size:12px;opacity:.6}.fmbtns{display:flex;gap:8px;margin-top:14px}.fmbtns .btn{flex:1;width:auto}
+.av.an{background:none}.av svg{width:100%;height:100%;display:block}
+.av.sm{width:34px;height:34px;font-size:15px;box-shadow:none}
+.avbtn{position:relative;border:0;background:none;padding:0;border-radius:50%;cursor:pointer;flex:none}
+.avbtn .av{width:76px;height:76px}
+.avbtn .cam{position:absolute;right:-4px;bottom:-4px;width:28px;height:28px;border-radius:50%;background:#fff;border:2px solid var(--line);display:grid;place-items:center;font-size:14px}
+.avrow{display:flex;gap:8px;margin:-6px 0 16px}
+.avrow .btn{padding:8px 14px;font-size:14px;width:auto}
+
+/* mind map */
+.mm{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}
+.mmtop{padding:14px 16px 6px}
+.mmtitle{margin:14px 0 4px;font-size:24px}
+.mmhelp{font-size:13px;color:var(--ink2)}
+.mmstrip{min-height:28px;margin:8px 0 0;font-weight:700;font-size:14px}
+.mmstrip.ok{color:var(--ok-d)} .mmstrip.bad{color:var(--bad-d)}
+.mmrows{flex:1;padding:6px 16px 16px;display:flex;flex-direction:column;gap:10px}
+.mmrow{display:grid;grid-template-columns:1fr 24px 1fr;gap:6px;align-items:center;background:#fff;border:2px solid var(--line);border-radius:16px;padding:10px 10px 8px}
+.mmrow.ok{border-color:var(--ok);background:#f6fcf8}
+.mmrow.flash{animation:flash .5s}
+@keyframes flash{0%,100%{border-color:var(--line)}30%{border-color:var(--bad);background:var(--bad-l)}}
+.arr{color:var(--ink2);font-size:14px;text-align:center}
+.mn{min-height:58px;border-radius:12px;border:2px solid var(--line);padding:6px 8px;display:flex;flex-direction:column;justify-content:center;background:#fafcfe;min-width:0}
+.mn b{font-size:13px;line-height:1.2;overflow-wrap:anywhere}
+.mn code{font-family:inherit;font-size:11px;color:var(--ink2);margin-top:2px;overflow-wrap:anywhere}
+.mn.hub{border-color:var(--gold-d);background:#fff8e3}
+.mn.filled{border-color:var(--ok);background:var(--ok-l)}
+.mn.blank{border-style:dashed;border-color:var(--ink2);background:#fff;align-items:center;font-size:24px;font-weight:800;color:var(--ink2);line-height:1}
+.mn.blank small{font-size:11px;font-weight:500;margin-top:2px}
+.mn.blank.sel{border-color:var(--accent);background:var(--accent-l);color:var(--accent-d);border-style:solid}
+.mr{grid-column:1/-1;justify-self:center;margin-top:2px;max-width:100%}
+.pill{display:inline-block;max-width:100%;background:var(--accent-l);color:var(--accent-d);border-radius:99px;padding:5px 12px;font-size:13px;font-weight:700;border:2px solid transparent;text-align:center;overflow-wrap:anywhere}
+.pill.filled{background:var(--ok-l);color:var(--ok-d)}
+.pill.blank{background:#fff;border:2px dashed var(--ink2);color:var(--ink2)}
+.pill.blank.sel{border:2px solid var(--accent);background:var(--accent-l);color:var(--accent-d)}
+.chipbar{position:sticky;bottom:0;background:#fff;border-top:3px solid var(--line);padding:12px 14px calc(14px + env(safe-area-inset-bottom));max-height:42vh;overflow:auto}
+.chipbar .t{font-size:12px;color:var(--ink2);margin-bottom:8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:2px solid var(--line);border-bottom-width:4px;background:#fff;border-radius:12px;padding:7px 11px;font-weight:700;font-size:13px;text-align:left;color:var(--ink)}
+.chip.reagent{border-radius:99px;background:var(--accent-l);border-color:var(--accent-l);border-bottom-color:var(--accent);color:var(--accent-d)}
+.chip.shake{animation:shake .4s;border-color:var(--bad)}
+@keyframes shake{0%,100%{transform:none}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+
+/* toasts / confirm */
+#toasts{position:fixed;top:14px;left:0;right:0;z-index:100;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none}
+.toast{background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;font-weight:700;font-size:14px;max-width:90vw;box-shadow:0 6px 18px rgba(0,0,0,.2)}
+.toast.bad{background:var(--bad-d)} .toast.ok{background:var(--ok-d)}
+.confirm{position:fixed;inset:0;background:rgba(21,33,59,.55);z-index:60;display:grid;place-items:center;padding:20px}
+.confirm .box{background:#fff;border-radius:20px;padding:22px;max-width:380px;width:100%}
+.confirm h3{font-size:22px;margin-bottom:6px}
+.confirm p{color:var(--ink2);margin-bottom:16px}
+.loading{display:grid;place-items:center;min-height:60vh;color:var(--ink2);font-weight:700}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.progbar{display:flex;gap:4px;background:#fff;border:2px solid var(--line);border-radius:999px;padding:3px;margin:0 0 12px}
+.progbar>*{flex:1;text-align:center;padding:7px 10px;border-radius:999px;font-weight:800;font-size:14px;color:var(--ink2);text-decoration:none}
+.progbar .on{background:var(--ink);color:#fff}.login .progbar{margin-top:14px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toasts" aria-live="polite"></div>
+
+<script>
+'use strict';
+/* =====================================================================
+   BONDLY: biology and chemistry, one streak at a time
+   Single file. Sections: 1 Storage, 2 Content, 3 Mind map data,
+   4 State and scoring, 5 Screens, 6 Question bank, 7 Events
+   ===================================================================== */
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const shuffle = a => { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
+
+/* ---------------------------------------------------------------------
+   1. STORAGE
+   One small adapter with four modes:
+     online  - Supabase: real accounts (emailed one-time code) and a global
+               leaderboard. Switched on by filling in CONFIG just below.
+     cloud   - Claude's shared key-value store, when the page runs inside Claude
+     local   - this browser only (localStorage)
+     memory  - nothing is kept once the tab closes
+   shared=true  -> visible to every player (leaderboard, question bank)
+   shared=false -> private to this player (profile, progress)
+   --------------------------------------------------------------------- */
+const CONFIG = {
+SUPABASE_URL: 'https://fiwboufecjfpxuvukwmp.supabase.co',       // e.g. 'https://abcdefgh.supabase.co'
+  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpd2JvdWZlY2pmcHh1dnVrd21wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEzMDg1MTUsImV4cCI6MjEwNjg4NDUxNX0.yKWKxuaLSuhjCaNrMdvfmJp_FjqO6b9Mo95xOT7lGco'   // the anon / publishable key (it is safe to publish)
+};
+const ONLINE = !!(CONFIG.SUPABASE_URL && CONFIG.SUPABASE_ANON_KEY);
+const enc = encodeURIComponent;
+
+async function sb(path, opt = {}) {
+  const h = { apikey: CONFIG.SUPABASE_ANON_KEY, 'Content-Type': 'application/json', ...(opt.headers || {}) };
+  if (!opt.noAuth && Auth.s && Auth.s.access_token) h.Authorization = 'Bearer ' + Auth.s.access_token;
+  const r = await fetch(CONFIG.SUPABASE_URL.replace(/\/$/, '') + path, { method: opt.method || 'GET', headers: h, body: opt.body !== undefined ? JSON.stringify(opt.body) : undefined });
+  const text = await r.text(); let data = null; try { data = text ? JSON.parse(text) : null; } catch (e) {}
+  if (!r.ok) {
+    const e = new Error((data && (data.msg || data.message || data.error_description || data.error)) || ('HTTP ' + r.status));
+    e.status = r.status; throw e;
+  }
+  return data;
+}
+
+/* upload one question figure to Supabase Storage; returns its path inside the bucket */
+async function uploadFigure(file) {
+  if (DB.mode !== 'online') throw new Error('Figures need online mode.');
+  if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) throw new Error('PNG, JPG or WebP only');
+  if (file.size > 1024 * 1024) throw new Error('Max 1 MB');
+  if (!(await Auth.fresh())) throw new Error('Please sign in again.');
+  const ext = file.type.split('/')[1].replace('jpeg', 'jpg');
+  const path = `${Auth.s.user.id}/${crypto.randomUUID()}.${ext}`;
+  const r = await fetch(`${CONFIG.SUPABASE_URL.replace(/\/$/, '')}/storage/v1/object/question-figures/${path}`, {
+    method: 'POST',
+    headers: { apikey: CONFIG.SUPABASE_ANON_KEY, Authorization: 'Bearer ' + Auth.s.access_token, 'Content-Type': file.type },
+    body: file
+  });
+  if (!r.ok) throw new Error('Upload failed (HTTP ' + r.status + ')');
+  return path;
+}
+/* only paths created by uploadFigure are shown, so a tampered record cannot point the page at another site */
+const figSrc = p => {
+  if (typeof p !== 'string') return '';
+  /* figures shipped with the site: a plain file name that lives in the img/ folder */
+  if (/^[A-Za-z0-9_-]+\.(svg|png|jpg|jpeg|webp)$/.test(p)) return 'img/' + p;
+  /* only paths created by uploadFigure are shown from storage, so a tampered record cannot point the page at another site */
+  return /^[0-9a-f-]{36}\/[0-9a-f-]{36}\.(png|jpg|webp)$/.test(p)
+    ? CONFIG.SUPABASE_URL.replace(/\/$/, '') + '/storage/v1/object/public/question-figures/' + p : '';
+};
+
+const Auth = {
+  s: null,
+  load() { try { this.s = JSON.parse(localStorage.getItem('bondly:auth') || 'null'); } catch (e) { this.s = null; } },
+  save(s) { this.s = s; try { s ? localStorage.setItem('bondly:auth', JSON.stringify(s)) : localStorage.removeItem('bondly:auth'); } catch (e) {} },
+  pack(d) { return { access_token: d.access_token, refresh_token: d.refresh_token, expires_at: d.expires_at || (Math.floor(Date.now() / 1000) + (d.expires_in || 3600)), user: { id: d.user.id, email: d.user.email } }; },
+  async sendCode(email) { await sb('/auth/v1/otp', { method: 'POST', noAuth: true, body: { email, create_user: true } }); },
+  async verify(email, token) { const d = await sb('/auth/v1/verify', { method: 'POST', noAuth: true, body: { type: 'email', email, token } }); this.save(this.pack(d)); return this.s; },
+  async fresh() {
+    if (!this.s) return false;
+    if (this.s.expires_at - 60 > Date.now() / 1000) return true;
+    try { const d = await sb('/auth/v1/token?grant_type=refresh_token', { method: 'POST', noAuth: true, body: { refresh_token: this.s.refresh_token } }); this.save(this.pack(d)); return true; }
+    catch (e) { if (e.status >= 400 && e.status < 500) this.save(null); throw e; }
+  },
+  async signOut() { try { await sb('/auth/v1/logout', { method: 'POST' }); } catch (e) {} this.save(null); }
+};
+
+const DB = {
+  mode: 'memory', mem: new Map(),
+  init() {
+    if (ONLINE) { this.mode = 'online'; Auth.load(); return; }
+    if (window.storage && typeof window.storage.get === 'function') { this.mode = 'cloud'; return; }
+    try { localStorage.setItem('__bondly', '1'); localStorage.removeItem('__bondly'); this.mode = 'local'; }
+    catch (e) { this.mode = 'memory'; }
+  },
+  lk(key, shared) { return 'bondly:' + (shared ? 's:' : 'p:') + key; },
+  /* online-mode filter for one key */
+  ok(key, shared) { return shared ? `scope=eq.s&key=eq.${enc(key)}` : `scope=eq.p&key=eq.${enc(key)}&owner=eq.${Auth.s.user.id}`; },
+  async get(key, shared = false) {
+    if (this.mode === 'online') {   // errors are thrown on purpose, so a dropped connection is never mistaken for "no data"
+      if (!(await Auth.fresh())) throw new Error('Not signed in');
+      const rows = await sb(`/rest/v1/kv?${this.ok(key, shared)}&select=value&limit=1`);
+      return rows && rows[0] ? rows[0].value : null;
+    }
+    try {
+      if (this.mode === 'cloud') { const r = await window.storage.get(key, shared); return r && r.value != null ? JSON.parse(r.value) : null; }
+      const raw = this.mode === 'local' ? localStorage.getItem(this.lk(key, shared)) : this.mem.get(this.lk(key, shared));
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) { return null; }
+  },
+  async set(key, val, shared = false) {
+    if (this.mode === 'online') {
+      try {
+        if (!(await Auth.fresh())) return false;
+        await sb('/rest/v1/kv?on_conflict=owner,scope,key', { method: 'POST', headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
+          body: { owner: Auth.s.user.id, scope: shared ? 's' : 'p', key, value: val, updated_at: new Date().toISOString() } });
+        return true;
+      } catch (e) { return false; }
+    }
+    try {
+      const raw = JSON.stringify(val);
+      if (this.mode === 'cloud') { const r = await window.storage.set(key, raw, shared); return !!r; }
+      if (this.mode === 'local') localStorage.setItem(this.lk(key, shared), raw); else this.mem.set(this.lk(key, shared), raw);
+      return true;
+    } catch (e) { return false; }
+  },
+  async del(key, shared = false) {
+    if (this.mode === 'online') {
+      try { if (!(await Auth.fresh())) return false; await sb(`/rest/v1/kv?${this.ok(key, shared)}`, { method: 'DELETE' }); return true; } catch (e) { return false; }
+    }
+    try {
+      if (this.mode === 'cloud') { await window.storage.delete(key, shared); return true; }
+      if (this.mode === 'local') localStorage.removeItem(this.lk(key, shared)); else this.mem.delete(this.lk(key, shared));
+      return true;
+    } catch (e) { return false; }
+  },
+  async list(prefix, shared = false) {
+    if (this.mode === 'online') {
+      if (!(await Auth.fresh())) return [];
+      const rows = await sb(`/rest/v1/kv?scope=eq.${shared ? 's' : 'p'}&key=like.${enc(prefix)}*&select=key&limit=1000`);
+      return (rows || []).map(r => r.key);
+    }
+    try {
+      if (this.mode === 'cloud') { const r = await window.storage.list(prefix, shared); return (r && r.keys) || []; }
+      const p = this.lk(prefix, shared), base = this.lk('', shared);
+      const all = this.mode === 'local' ? Object.keys(localStorage) : [...this.mem.keys()];
+      return all.filter(k => k.startsWith(p)).map(k => k.slice(base.length));
+    } catch (e) { return []; }
+  },
+  /* every value under a prefix in one go (one request when online) */
+  async listValues(prefix, shared = false, o = {}) {
+    const limit = o.limit || 300;
+    if (this.mode === 'online') {
+      if (!(await Auth.fresh())) return [];
+      const rows = await sb(`/rest/v1/kv?scope=eq.${shared ? 's' : 'p'}&key=like.${enc(prefix)}*&select=value&limit=${limit}${o.order ? '&order=' + o.order : ''}`);
+      return (rows || []).map(r => r.value);
+    }
+    const keys = (await this.list(prefix, shared)).slice(0, limit);
+    return (await Promise.all(keys.map(k => this.get(k, shared)))).filter(v => v != null);
+  }
+};
+
+async function hashId(str) {
+  try {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('bondly:' + str));
+    return [...new Uint8Array(buf)].slice(0, 8).map(b => b.toString(16).padStart(2, '0')).join('');
+  } catch (e) { let h = 5381; for (const c of str) h = ((h << 5) + h + c.charCodeAt(0)) >>> 0; return 'x' + h.toString(16); }
+}
+const idOf = email => email.trim().toLowerCase().replace(/[^a-z0-9@._-]/g, '_');
+
+/* ---- profile pictures: pick, centre-crop to a square, shrink, store as a small JPEG ---- */
+const AV_OK = /^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/;
+const avSrc = a => (typeof a === 'string' && a.length < 24000 && AV_OK.test(a)) ? a : '';
+const ANIMALS = {"A":["Alpaca","#ffe7a3","<ellipse cx=\"22\" cy=\"14\" rx=\"3.5\" ry=\"9\" fill=\"#e9d5b5\" transform=\"rotate(-12 22 14)\"/><ellipse cx=\"42\" cy=\"14\" rx=\"3.5\" ry=\"9\" fill=\"#e9d5b5\" transform=\"rotate(12 42 14)\"/><ellipse cx=\"32\" cy=\"42\" rx=\"14\" ry=\"17\" fill=\"#efdcb9\"/><circle cx=\"32\" cy=\"22\" r=\"11\" fill=\"#f6ead3\"/><circle cx=\"24\" cy=\"25\" r=\"7\" fill=\"#f6ead3\"/><circle cx=\"40\" cy=\"25\" r=\"7\" fill=\"#f6ead3\"/><ellipse cx=\"32\" cy=\"46\" rx=\"8\" ry=\"6.5\" fill=\"#fff3e0\"/><circle cx=\"25.5\" cy=\"37\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"26.3\" cy=\"36.2\" r=\".8\" fill=\"#fff\"/><circle cx=\"38.5\" cy=\"37\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"39.3\" cy=\"36.2\" r=\".8\" fill=\"#fff\"/><circle cx=\"29.7\" cy=\"46\" r=\"1.1\" fill=\"#243044\"/><circle cx=\"34.3\" cy=\"46\" r=\"1.1\" fill=\"#243044\"/><path d=\"M29.5 49q2.5 3.5 5.0 0\" stroke=\"#243044\" stroke-width=\"1.6\" fill=\"none\" stroke-linecap=\"round\"/>"],"B":["Bear","#fde3cf","<circle cx=\"18\" cy=\"20\" r=\"8\" fill=\"#8a5a3b\"/><circle cx=\"18\" cy=\"20\" r=\"4\" fill=\"#d9a77c\"/><circle cx=\"46\" cy=\"20\" r=\"8\" fill=\"#8a5a3b\"/><circle cx=\"46\" cy=\"20\" r=\"4\" fill=\"#d9a77c\"/><circle cx=\"32\" cy=\"36\" r=\"19\" fill=\"#a8683f\"/><ellipse cx=\"32\" cy=\"43\" rx=\"9\" ry=\"7\" fill=\"#e8c39c\"/><ellipse cx=\"32\" cy=\"40\" rx=\"3.6\" ry=\"2.6\" fill=\"#243044\"/><circle cx=\"25\" cy=\"32\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"25.8\" cy=\"31.2\" r=\".8\" fill=\"#fff\"/><circle cx=\"39\" cy=\"32\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"39.8\" cy=\"31.2\" r=\".8\" fill=\"#fff\"/><path d=\"M29 44.5q3 4 6 0\" stroke=\"#243044\" stroke-width=\"1.6\" fill=\"none\" stroke-linecap=\"round\"/>"],"C":["Cat","#f8d3d8","<path d=\"M16 28 L18 10 L30 20Z\" fill=\"#f08a3c\"/><path d=\"M48 28 L46 10 L34 20Z\" fill=\"#f08a3c\"/><path d=\"M19 24 L20 15 L26 20Z\" fill=\"#f7b4b4\"/><path d=\"M45 24 L44 15 L38 20Z\" fill=\"#f7b4b4\"/><ellipse cx=\"32\" cy=\"38\" rx=\"19\" ry=\"16\" fill=\"#f59a4c\"/><path d=\"M26 24q1.5 4 0 6M32 23v6M38 24q-1.5 4 0 6\" stroke=\"#c7621d\" stroke-width=\"2\" fill=\"none\" stroke-linecap=\"round\"/><ellipse cx=\"32\" cy=\"44\" rx=\"8\" ry=\"5.5\" fill=\"#fde7cf\"/><path d=\"M30 41.5h4l-2 2.5z\" fill=\"#e66a7a\"/><path d=\"M12 40l9 2M12 46l9-2M52 40l-9 2M52 46l-9-2\" stroke=\"#243044\" stroke-width=\"1.2\" stroke-linecap=\"round\"/><circle cx=\"25\" cy=\"34\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"25.8\" cy=\"33.2\" r=\".8\" fill=\"#fff\"/><circle cx=\"39\" cy=\"34\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"39.8\" cy=\"33.2\" r=\".8\" fill=\"#fff\"/><path d=\"M32 44q-3 3-5 1M32 44q3 3 5 1\" stroke=\"#243044\" stroke-width=\"1.4\" fill=\"none\" stroke-linecap=\"round\"/>"],"D":["Dog","#d8efe0","<ellipse cx=\"14\" cy=\"32\" rx=\"7\" ry=\"14\" fill=\"#7a4a2b\" transform=\"rotate(8 14 32)\"/><ellipse cx=\"50\" cy=\"32\" rx=\"7\" ry=\"14\" fill=\"#7a4a2b\" transform=\"rotate(-8 50 32)\"/><circle cx=\"32\" cy=\"34\" r=\"17\" fill=\"#d9a066\"/><circle cx=\"25\" cy=\"30\" r=\"5.5\" fill=\"#a56a35\" opacity=\".55\"/><ellipse cx=\"32\" cy=\"42\" rx=\"10\" ry=\"8\" fill=\"#fbeedb\"/><ellipse cx=\"32\" cy=\"38.5\" rx=\"4\" ry=\"3\" fill=\"#243044\"/><path d=\"M32 41.5v3\" stroke=\"#243044\" stroke-width=\"1.5\"/><path d=\"M27 44.5q5 4 10 0\" stroke=\"#243044\" stroke-width=\"1.5\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M30 46.5q2 6 4 0z\" fill=\"#e66a7a\"/><circle cx=\"25\" cy=\"30\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"25.8\" cy=\"29.2\" r=\".8\" fill=\"#fff\"/><circle cx=\"39\" cy=\"30\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"39.8\" cy=\"29.2\" r=\".8\" fill=\"#fff\"/>"],"E":["Elephant","#dce7ff","<circle cx=\"12\" cy=\"30\" r=\"11\" fill=\"#9fb0c4\"/><circle cx=\"52\" cy=\"30\" r=\"11\" fill=\"#9fb0c4\"/><circle cx=\"12\" cy=\"30\" r=\"6.5\" fill=\"#f2b7c0\"/><circle cx=\"52\" cy=\"30\" r=\"6.5\" fill=\"#f2b7c0\"/><circle cx=\"32\" cy=\"30\" r=\"16\" fill=\"#b4c3d6\"/><path d=\"M26 36h12v16q0 7-6 7t-6-7z\" fill=\"#b4c3d6\" stroke=\"#8fa0b6\" stroke-width=\"1\"/><path d=\"M26 42h12M26 47h12\" stroke=\"#8fa0b6\" stroke-width=\"1.2\"/><path d=\"M23 41q-4 6 1 11M41 41q4 6-1 11\" stroke=\"#fff\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><circle cx=\"25\" cy=\"28\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"25.8\" cy=\"27.2\" r=\".8\" fill=\"#fff\"/><circle cx=\"39\" cy=\"28\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"39.8\" cy=\"27.2\" r=\".8\" fill=\"#fff\"/>"],"F":["Fox","#ffe7a3","<path d=\"M12 14 L28 24 L16 36Z\" fill=\"#e8662d\"/><path d=\"M52 14 L36 24 L48 36Z\" fill=\"#e8662d\"/><path d=\"M14 16 L22 22 L16 28Z\" fill=\"#243044\"/><path d=\"M50 16 L42 22 L48 28Z\" fill=\"#243044\"/><path d=\"M10 32 Q32 18 54 32 Q50 52 32 56 Q14 52 10 32Z\" fill=\"#f07a35\"/><path d=\"M10 34 Q22 44 32 56 Q18 52 10 34Z\" fill=\"#fff4e6\"/><path d=\"M54 34 Q42 44 32 56 Q46 52 54 34Z\" fill=\"#fff4e6\"/><circle cx=\"32\" cy=\"52\" r=\"3.2\" fill=\"#243044\"/><circle cx=\"24\" cy=\"36\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"24.8\" cy=\"35.2\" r=\".8\" fill=\"#fff\"/><circle cx=\"40\" cy=\"36\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"40.8\" cy=\"35.2\" r=\".8\" fill=\"#fff\"/>"],"G":["Giraffe","#fde3cf","<rect x=\"23\" y=\"8\" width=\"3\" height=\"10\" rx=\"1.5\" fill=\"#c58a3a\"/><circle cx=\"24.5\" cy=\"8\" r=\"3\" fill=\"#7a4a2b\"/><rect x=\"38\" y=\"8\" width=\"3\" height=\"10\" rx=\"1.5\" fill=\"#c58a3a\"/><circle cx=\"39.5\" cy=\"8\" r=\"3\" fill=\"#7a4a2b\"/><ellipse cx=\"13\" cy=\"27\" rx=\"8\" ry=\"4.5\" fill=\"#f2c14e\" transform=\"rotate(-20 13 27)\"/><ellipse cx=\"51\" cy=\"27\" rx=\"8\" ry=\"4.5\" fill=\"#f2c14e\" transform=\"rotate(20 51 27)\"/><ellipse cx=\"32\" cy=\"35\" rx=\"15\" ry=\"17\" fill=\"#f6cc5d\"/><circle cx=\"22\" cy=\"24\" r=\"3\" fill=\"#c58a3a\"/><circle cx=\"41\" cy=\"22\" r=\"2.6\" fill=\"#c58a3a\"/><circle cx=\"35\" cy=\"17\" r=\"2\" fill=\"#c58a3a\"/><ellipse cx=\"32\" cy=\"46\" rx=\"10\" ry=\"8\" fill=\"#fbe5b3\"/><circle cx=\"28.5\" cy=\"45.5\" r=\"1.3\" fill=\"#c58a3a\"/><circle cx=\"35.5\" cy=\"45.5\" r=\"1.3\" fill=\"#c58a3a\"/><circle cx=\"25\" cy=\"33\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"25.8\" cy=\"32.2\" r=\".8\" fill=\"#fff\"/><circle cx=\"39\" cy=\"33\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"39.8\" cy=\"32.2\" r=\".8\" fill=\"#fff\"/><path d=\"M29.5 50q2.5 3.5 5.0 0\" stroke=\"#243044\" stroke-width=\"1.6\" fill=\"none\" stroke-linecap=\"round\"/>"],"H":["Hedgehog","#ead9f7","<path d=\"M8 40 L10 26 L16 30 L18 16 L25 24 L32 12 L39 24 L46 16 L48 30 L54 26 L56 40Z\" fill=\"#6b4a3a\"/><circle cx=\"14\" cy=\"38\" r=\"4\" fill=\"#f2d5b3\"/><circle cx=\"50\" cy=\"38\" r=\"4\" fill=\"#f2d5b3\"/><path d=\"M13 42 Q32 26 51 42 Q50 58 32 58 Q14 58 13 42Z\" fill=\"#f2d5b3\"/><circle cx=\"32\" cy=\"51\" r=\"3\" fill=\"#243044\"/><circle cx=\"24\" cy=\"43\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"24.8\" cy=\"42.2\" r=\".8\" fill=\"#fff\"/><circle cx=\"40\" cy=\"43\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"40.8\" cy=\"42.2\" r=\".8\" fill=\"#fff\"/><ellipse cx=\"19\" cy=\"49\" rx=\"3\" ry=\"2\" fill=\"#f58aa0\" opacity=\".55\"/><ellipse cx=\"45\" cy=\"49\" rx=\"3\" ry=\"2\" fill=\"#f58aa0\" opacity=\".55\"/>"],"I":["Iguana","#d8efe0","<path d=\"M24 20 L26 8 L30 16 L32 6 L34 16 L38 8 L40 20Z\" fill=\"#2f9e6d\"/><path d=\"M12 36 Q12 18 32 18 Q52 18 52 36 Q52 54 32 56 Q12 54 12 36Z\" fill=\"#4cc38a\"/><ellipse cx=\"32\" cy=\"48\" rx=\"12\" ry=\"7\" fill=\"#c9f0d6\"/><circle cx=\"22\" cy=\"31\" r=\"5.5\" fill=\"#ffe27a\"/><circle cx=\"42\" cy=\"31\" r=\"5.5\" fill=\"#ffe27a\"/><ellipse cx=\"22\" cy=\"31\" rx=\"1.4\" ry=\"3.6\" fill=\"#243044\"/><ellipse cx=\"42\" cy=\"31\" rx=\"1.4\" ry=\"3.6\" fill=\"#243044\"/><circle cx=\"29\" cy=\"42\" r=\"1.1\" fill=\"#243044\"/><circle cx=\"35\" cy=\"42\" r=\"1.1\" fill=\"#243044\"/><path d=\"M28 48q4 5 8 0\" stroke=\"#243044\" stroke-width=\"1.6\" fill=\"none\" stroke-linecap=\"round\"/>"],"J":["Jellyfish","#dce7ff","<path d=\"M16 36 q-3 8 0 12 t0 10M26 36 q-3 8 0 12 t0 12M38 36 q3 8 0 12 t0 12M48 36 q3 8 0 12 t0 10\" stroke=\"#b48be3\" stroke-width=\"3.5\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M10 36 Q10 8 32 8 Q54 8 54 36Z\" fill=\"#c9a6ee\"/><path d=\"M18 20 Q22 12 30 12\" stroke=\"#fff\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" opacity=\".7\"/><circle cx=\"24\" cy=\"26\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"24.8\" cy=\"25.2\" r=\".8\" fill=\"#fff\"/><circle cx=\"40\" cy=\"26\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"40.8\" cy=\"25.2\" r=\".8\" fill=\"#fff\"/><ellipse cx=\"18\" cy=\"31\" rx=\"3\" ry=\"2\" fill=\"#f58aa0\" opacity=\".55\"/><ellipse cx=\"46\" cy=\"31\" rx=\"3\" ry=\"2\" fill=\"#f58aa0\" opacity=\".55\"/><path d=\"M29 31q3 4 6 0\" stroke=\"#243044\" stroke-width=\"1.6\" fill=\"none\" stroke-linecap=\"round\"/>"],"K":["Koala","#fde3cf","<circle cx=\"13\" cy=\"22\" r=\"10\" fill=\"#aab4c0\"/><circle cx=\"13\" cy=\"22\" r=\"5.5\" fill=\"#f1e4ea\"/><circle cx=\"51\" cy=\"22\" r=\"10\" fill=\"#aab4c0\"/><circle cx=\"51\" cy=\"22\" r=\"5.5\" fill=\"#f1e4ea\"/><ellipse cx=\"32\" cy=\"36\" rx=\"19\" ry=\"18\" fill=\"#bcc5d1\"/><ellipse cx=\"32\" cy=\"39\" rx=\"5\" ry=\"7\" fill=\"#3a3f4a\"/><circle cx=\"23\" cy=\"30\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"23.8\" cy=\"29.2\" r=\".8\" fill=\"#fff\"/><circle cx=\"41\" cy=\"30\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"41.8\" cy=\"29.2\" r=\".8\" fill=\"#fff\"/><path d=\"M29 50q3 4 6 0\" stroke=\"#243044\" stroke-width=\"1.6\" fill=\"none\" stroke-linecap=\"round\"/>"],"L":["Lion","#ffe7a3","<circle cx=\"32\" cy=\"34\" r=\"27\" fill=\"#c9762b\"/><circle cx=\"14\" cy=\"14\" r=\"6\" fill=\"#b4661f\"/><circle cx=\"50\" cy=\"14\" r=\"6\" fill=\"#b4661f\"/><circle cx=\"32\" cy=\"36\" r=\"17\" fill=\"#f4b35e\"/><circle cx=\"18\" cy=\"22\" r=\"5\" fill=\"#f4b35e\"/><circle cx=\"46\" cy=\"22\" r=\"5\" fill=\"#f4b35e\"/><ellipse cx=\"32\" cy=\"44\" rx=\"8.5\" ry=\"6.5\" fill=\"#fde3b8\"/><path d=\"M29 40h6l-3 3.5z\" fill=\"#243044\"/><circle cx=\"24\" cy=\"32\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"24.8\" cy=\"31.2\" r=\".8\" fill=\"#fff\"/><circle cx=\"40\" cy=\"32\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"40.8\" cy=\"31.2\" r=\".8\" fill=\"#fff\"/><path d=\"M29 46.5q3 4 6 0\" stroke=\"#243044\" stroke-width=\"1.6\" fill=\"none\" stroke-linecap=\"round\"/>"],"M":["Monkey","#f8d3d8","<circle cx=\"12\" cy=\"34\" r=\"7\" fill=\"#7a4a2b\"/><circle cx=\"12\" cy=\"34\" r=\"4\" fill=\"#f0c9a1\"/><circle cx=\"52\" cy=\"34\" r=\"7\" fill=\"#7a4a2b\"/><circle cx=\"52\" cy=\"34\" r=\"4\" fill=\"#f0c9a1\"/><circle cx=\"32\" cy=\"32\" r=\"19\" fill=\"#8a5a3b\"/><path d=\"M32 26 Q22 22 19 32 Q18 46 32 53 Q46 46 45 32 Q42 22 32 26Z\" fill=\"#f0c9a1\"/><circle cx=\"30\" cy=\"42\" r=\"1\" fill=\"#243044\"/><circle cx=\"34\" cy=\"42\" r=\"1\" fill=\"#243044\"/><circle cx=\"26\" cy=\"34\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"26.8\" cy=\"33.2\" r=\".8\" fill=\"#fff\"/><circle cx=\"38\" cy=\"34\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"38.8\" cy=\"33.2\" r=\".8\" fill=\"#fff\"/><path d=\"M28 46q4 5 8 0\" stroke=\"#243044\" stroke-width=\"1.6\" fill=\"none\" stroke-linecap=\"round\"/>"],"N":["Narwhal","#dce7ff","<path d=\"M30 24 L33 1 L36 24Z\" fill=\"#fde9b6\" stroke=\"#e0bd6a\" stroke-width=\"1\"/><path d=\"M31 18l5-2M31.6 12l4-1.6M32 7l3-1.2\" stroke=\"#e0bd6a\" stroke-width=\"1.2\"/><ellipse cx=\"12\" cy=\"44\" rx=\"6\" ry=\"3.2\" fill=\"#6890c0\" transform=\"rotate(-20 12 44)\"/><ellipse cx=\"52\" cy=\"44\" rx=\"6\" ry=\"3.2\" fill=\"#6890c0\" transform=\"rotate(20 52 44)\"/><circle cx=\"32\" cy=\"40\" r=\"19\" fill=\"#7ea7d6\"/><ellipse cx=\"32\" cy=\"50\" rx=\"12\" ry=\"8\" fill=\"#dcebfa\"/><circle cx=\"24\" cy=\"37\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"24.8\" cy=\"36.2\" r=\".8\" fill=\"#fff\"/><circle cx=\"40\" cy=\"37\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"40.8\" cy=\"36.2\" r=\".8\" fill=\"#fff\"/><ellipse cx=\"19\" cy=\"43\" rx=\"3\" ry=\"2\" fill=\"#f58aa0\" opacity=\".55\"/><ellipse cx=\"45\" cy=\"43\" rx=\"3\" ry=\"2\" fill=\"#f58aa0\" opacity=\".55\"/><path d=\"M29 48q3 4 6 0\" stroke=\"#243044\" stroke-width=\"1.6\" fill=\"none\" stroke-linecap=\"round\"/>"],"O":["Owl","#ffe7a3","<path d=\"M12 12 L24 20 L14 28Z M52 12 L40 20 L50 28Z\" fill=\"#7a5a3a\"/><ellipse cx=\"32\" cy=\"36\" rx=\"21\" ry=\"22\" fill=\"#9a7650\"/><path d=\"M12 32 Q22 16 32 26 Q42 16 52 32 Q52 50 32 52 Q12 50 12 32Z\" fill=\"#f3e4c6\"/><circle cx=\"23\" cy=\"33\" r=\"8.5\" fill=\"#fff\" stroke=\"#7a5a3a\" stroke-width=\"2\"/><circle cx=\"41\" cy=\"33\" r=\"8.5\" fill=\"#fff\" stroke=\"#7a5a3a\" stroke-width=\"2\"/><circle cx=\"23\" cy=\"33\" r=\"3.8\" fill=\"#243044\"/><circle cx=\"41\" cy=\"33\" r=\"3.8\" fill=\"#243044\"/><circle cx=\"24.2\" cy=\"31.8\" r=\"1.1\" fill=\"#fff\"/><circle cx=\"42.2\" cy=\"31.8\" r=\"1.1\" fill=\"#fff\"/><path d=\"M29 40h6l-3 7z\" fill=\"#f2a900\"/>"],"P":["Penguin","#dce7ff","<ellipse cx=\"11\" cy=\"42\" rx=\"4.5\" ry=\"11\" fill=\"#2b3a55\" transform=\"rotate(14 11 42)\"/><ellipse cx=\"53\" cy=\"42\" rx=\"4.5\" ry=\"11\" fill=\"#2b3a55\" transform=\"rotate(-14 53 42)\"/><ellipse cx=\"32\" cy=\"36\" rx=\"20\" ry=\"22\" fill=\"#2b3a55\"/><path d=\"M19 32 Q26 24 32 31 Q38 24 45 32 Q47 54 32 57 Q17 54 19 32Z\" fill=\"#fff\"/><path d=\"M28 38h8l-4 6z\" fill=\"#f59a1a\"/><circle cx=\"25\" cy=\"33\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"25.8\" cy=\"32.2\" r=\".8\" fill=\"#fff\"/><circle cx=\"39\" cy=\"33\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"39.8\" cy=\"32.2\" r=\".8\" fill=\"#fff\"/><ellipse cx=\"21\" cy=\"40\" rx=\"3\" ry=\"2\" fill=\"#f58aa0\" opacity=\".55\"/><ellipse cx=\"43\" cy=\"40\" rx=\"3\" ry=\"2\" fill=\"#f58aa0\" opacity=\".55\"/>"],"Q":["Quokka","#d8efe0","<circle cx=\"17\" cy=\"22\" r=\"6.5\" fill=\"#a37649\"/><circle cx=\"17\" cy=\"22\" r=\"3.2\" fill=\"#e6b9a0\"/><circle cx=\"47\" cy=\"22\" r=\"6.5\" fill=\"#a37649\"/><circle cx=\"47\" cy=\"22\" r=\"3.2\" fill=\"#e6b9a0\"/><circle cx=\"32\" cy=\"36\" r=\"18\" fill=\"#b98b5e\"/><ellipse cx=\"32\" cy=\"43\" rx=\"11\" ry=\"8\" fill=\"#e5c7a2\"/><ellipse cx=\"32\" cy=\"38\" rx=\"4\" ry=\"3\" fill=\"#3a2a22\"/><path d=\"M24 44 Q32 55 40 44\" stroke=\"#243044\" stroke-width=\"1.7\" fill=\"none\" stroke-linecap=\"round\"/><circle cx=\"24\" cy=\"31\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"24.8\" cy=\"30.2\" r=\".8\" fill=\"#fff\"/><circle cx=\"40\" cy=\"31\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"40.8\" cy=\"30.2\" r=\".8\" fill=\"#fff\"/><ellipse cx=\"18\" cy=\"41\" rx=\"3\" ry=\"2\" fill=\"#f58aa0\" opacity=\".55\"/><ellipse cx=\"46\" cy=\"41\" rx=\"3\" ry=\"2\" fill=\"#f58aa0\" opacity=\".55\"/>"],"R":["Rabbit","#f8d3d8","<ellipse cx=\"23\" cy=\"14\" rx=\"5\" ry=\"13\" fill=\"#fff\" stroke=\"#e3e8f0\"/><ellipse cx=\"23\" cy=\"15\" rx=\"2.5\" ry=\"9\" fill=\"#f6b5c4\"/><ellipse cx=\"41\" cy=\"14\" rx=\"5\" ry=\"13\" fill=\"#fff\" stroke=\"#e3e8f0\"/><ellipse cx=\"41\" cy=\"15\" rx=\"2.5\" ry=\"9\" fill=\"#f6b5c4\"/><circle cx=\"32\" cy=\"41\" r=\"17\" fill=\"#fff\" stroke=\"#e3e8f0\"/><ellipse cx=\"32\" cy=\"43\" rx=\"3\" ry=\"2.2\" fill=\"#f27c92\"/><rect x=\"29.5\" y=\"47\" width=\"5\" height=\"5.5\" rx=\"1\" fill=\"#fff\" stroke=\"#243044\" stroke-width=\"1\"/><circle cx=\"24\" cy=\"37\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"24.8\" cy=\"36.2\" r=\".8\" fill=\"#fff\"/><circle cx=\"40\" cy=\"37\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"40.8\" cy=\"36.2\" r=\".8\" fill=\"#fff\"/><ellipse cx=\"20\" cy=\"43\" rx=\"3\" ry=\"2\" fill=\"#f58aa0\" opacity=\".55\"/><ellipse cx=\"44\" cy=\"43\" rx=\"3\" ry=\"2\" fill=\"#f58aa0\" opacity=\".55\"/>"],"S":["Sloth","#fde3cf","<ellipse cx=\"32\" cy=\"36\" rx=\"20\" ry=\"17\" fill=\"#c9a27a\"/><ellipse cx=\"32\" cy=\"40\" rx=\"14\" ry=\"11\" fill=\"#f1e0c5\"/><path d=\"M15 30 Q22 25 29 35 Q23 43 17 39Z\" fill=\"#6b4a36\"/><path d=\"M49 30 Q42 25 35 35 Q41 43 47 39Z\" fill=\"#6b4a36\"/><circle cx=\"23\" cy=\"34\" r=\"2.3\" fill=\"#fff\"/><circle cx=\"41\" cy=\"34\" r=\"2.3\" fill=\"#fff\"/><circle cx=\"23.3\" cy=\"34.3\" r=\"1.2\" fill=\"#243044\"/><circle cx=\"40.7\" cy=\"34.3\" r=\"1.2\" fill=\"#243044\"/><ellipse cx=\"32\" cy=\"42\" rx=\"3.5\" ry=\"2.5\" fill=\"#3a2a22\"/><path d=\"M28 46q4 5 8 0\" stroke=\"#243044\" stroke-width=\"1.6\" fill=\"none\" stroke-linecap=\"round\"/>"],"T":["Turtle","#d8efe0","<circle cx=\"12\" cy=\"30\" r=\"6\" fill=\"#7cc576\"/><circle cx=\"52\" cy=\"30\" r=\"6\" fill=\"#7cc576\"/><circle cx=\"14\" cy=\"52\" r=\"6\" fill=\"#7cc576\"/><circle cx=\"50\" cy=\"52\" r=\"6\" fill=\"#7cc576\"/><ellipse cx=\"32\" cy=\"40\" rx=\"21\" ry=\"19\" fill=\"#4b9a55\"/><path d=\"M32 29 L40 34 V44 L32 49 L24 44 V34Z\" fill=\"#7cc576\" stroke=\"#2f7a3d\" stroke-width=\"1.5\"/><path d=\"M32 29 V21M40 34 L47 30M40 44 L47 49M32 49 V57M24 44 L17 49M24 34 L17 30\" stroke=\"#2f7a3d\" stroke-width=\"1.5\"/><circle cx=\"32\" cy=\"13\" r=\"9\" fill=\"#7cc576\"/><circle cx=\"28\" cy=\"12\" r=\"2\" fill=\"#243044\"/><circle cx=\"36\" cy=\"12\" r=\"2\" fill=\"#243044\"/><path d=\"M29 17q3 4 6 0\" stroke=\"#243044\" stroke-width=\"1.6\" fill=\"none\" stroke-linecap=\"round\"/>"],"U":["Unicorn","#ead9f7","<path d=\"M17 22 Q6 34 14 52 L21 46 Q15 36 21 26Z\" fill=\"#7fc8f2\"/><path d=\"M47 22 Q58 34 50 52 L43 46 Q49 36 43 26Z\" fill=\"#f08ac0\"/><path d=\"M18 26 Q20 15 32 15 Q44 15 46 26 Q50 44 42 52 Q32 58 22 52 Q14 44 18 26Z\" fill=\"#fff\" stroke=\"#e1e6f2\" stroke-width=\"1.5\"/><path d=\"M20 21 L17 9 L27 16Z M44 21 L47 9 L37 16Z\" fill=\"#fff\" stroke=\"#e1e6f2\" stroke-width=\"1.5\"/><path d=\"M30 17 L32 0 L34 17Z\" fill=\"#f6c244\"/><path d=\"M24 18 Q32 30 40 18 Q32 14 24 18Z\" fill=\"#b58de8\"/><ellipse cx=\"32\" cy=\"48\" rx=\"8\" ry=\"6\" fill=\"#ffe3ee\"/><circle cx=\"29.5\" cy=\"48\" r=\"1\" fill=\"#243044\"/><circle cx=\"34.5\" cy=\"48\" r=\"1\" fill=\"#243044\"/><circle cx=\"25\" cy=\"37\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"25.8\" cy=\"36.2\" r=\".8\" fill=\"#fff\"/><circle cx=\"39\" cy=\"37\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"39.8\" cy=\"36.2\" r=\".8\" fill=\"#fff\"/><ellipse cx=\"20\" cy=\"43\" rx=\"3\" ry=\"2\" fill=\"#f58aa0\" opacity=\".55\"/><ellipse cx=\"44\" cy=\"43\" rx=\"3\" ry=\"2\" fill=\"#f58aa0\" opacity=\".55\"/>"],"V":["Viper","#d8efe0","<path d=\"M32 8 Q52 22 50 40 Q46 56 32 56 Q18 56 14 40 Q12 22 32 8Z\" fill=\"#7ac143\"/><path d=\"M32 13 l5 8 -5 8 -5 -8z\" fill=\"#4a8f1f\"/><circle cx=\"23\" cy=\"36\" r=\"5\" fill=\"#ffe27a\"/><circle cx=\"41\" cy=\"36\" r=\"5\" fill=\"#ffe27a\"/><ellipse cx=\"23\" cy=\"36\" rx=\"1.3\" ry=\"3.4\" fill=\"#243044\"/><ellipse cx=\"41\" cy=\"36\" rx=\"1.3\" ry=\"3.4\" fill=\"#243044\"/><circle cx=\"29\" cy=\"46\" r=\"1\" fill=\"#243044\"/><circle cx=\"35\" cy=\"46\" r=\"1\" fill=\"#243044\"/><path d=\"M26 50q6 4 12 0\" stroke=\"#243044\" stroke-width=\"1.5\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M32 54v6m0 0l-3 3m3-3l3 3\" stroke=\"#e5484d\" stroke-width=\"2\" fill=\"none\" stroke-linecap=\"round\"/>"],"W":["Whale","#dce7ff","<path d=\"M32 22 V10M32 13 q-6-6-9-2M32 13 q6-6 9-2\" stroke=\"#9fd0ff\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M8 42 Q8 22 32 22 Q56 22 56 42 Q56 58 32 58 Q8 58 8 42Z\" fill=\"#4f8fe0\"/><path d=\"M12 46 Q32 54 52 46 Q50 58 32 58 Q14 58 12 46Z\" fill=\"#dff0ff\"/><circle cx=\"22\" cy=\"38\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"22.8\" cy=\"37.2\" r=\".8\" fill=\"#fff\"/><circle cx=\"42\" cy=\"38\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"42.8\" cy=\"37.2\" r=\".8\" fill=\"#fff\"/><ellipse cx=\"17\" cy=\"44\" rx=\"3\" ry=\"2\" fill=\"#f58aa0\" opacity=\".55\"/><ellipse cx=\"47\" cy=\"44\" rx=\"3\" ry=\"2\" fill=\"#f58aa0\" opacity=\".55\"/><path d=\"M28 47q4 5 8 0\" stroke=\"#243044\" stroke-width=\"1.6\" fill=\"none\" stroke-linecap=\"round\"/>"],"X":["Xerus","#ffe7a3","<path d=\"M44 54 Q62 46 57 22 Q51 34 40 38Z\" fill=\"#c8895a\"/><circle cx=\"20\" cy=\"18\" r=\"5.5\" fill=\"#b9794a\"/><circle cx=\"44\" cy=\"18\" r=\"5.5\" fill=\"#b9794a\"/><circle cx=\"32\" cy=\"37\" r=\"18\" fill=\"#d6a06b\"/><path d=\"M32 20 V29\" stroke=\"#f6e3c8\" stroke-width=\"5\" stroke-linecap=\"round\"/><path d=\"M26 21 V28M38 21 V28\" stroke=\"#8a5a3b\" stroke-width=\"2\" stroke-linecap=\"round\"/><ellipse cx=\"32\" cy=\"45\" rx=\"9\" ry=\"7\" fill=\"#f6e3c8\"/><ellipse cx=\"32\" cy=\"41\" rx=\"3\" ry=\"2.2\" fill=\"#243044\"/><rect x=\"30\" y=\"47\" width=\"4\" height=\"4.5\" rx=\"1\" fill=\"#fff\" stroke=\"#243044\"/><circle cx=\"24\" cy=\"35\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"24.8\" cy=\"34.2\" r=\".8\" fill=\"#fff\"/><circle cx=\"40\" cy=\"35\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"40.8\" cy=\"34.2\" r=\".8\" fill=\"#fff\"/>"],"Y":["Yak","#f8d3d8","<path d=\"M14 24 Q4 18 7 6 Q14 14 21 19Z M50 24 Q60 18 57 6 Q50 14 43 19Z\" fill=\"#f4ead2\" stroke=\"#d8c9a4\" stroke-width=\"1\"/><path d=\"M10 30 Q10 12 32 12 Q54 12 54 30 L54 44 Q52 58 32 58 Q12 58 10 44Z\" fill=\"#4a3426\"/><ellipse cx=\"32\" cy=\"38\" rx=\"11\" ry=\"15\" fill=\"#7a5a44\"/><ellipse cx=\"32\" cy=\"48\" rx=\"7\" ry=\"5\" fill=\"#e9c9b2\"/><circle cx=\"29.5\" cy=\"47\" r=\"1\" fill=\"#243044\"/><circle cx=\"34.5\" cy=\"47\" r=\"1\" fill=\"#243044\"/><circle cx=\"32\" cy=\"53\" r=\"3\" fill=\"none\" stroke=\"#f2b01e\" stroke-width=\"1.6\"/><circle cx=\"26\" cy=\"33\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"26.8\" cy=\"32.2\" r=\".8\" fill=\"#fff\"/><circle cx=\"38\" cy=\"33\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"38.8\" cy=\"32.2\" r=\".8\" fill=\"#fff\"/>"],"Z":["Zebra","#d8efe0","<path d=\"M18 22 L16 6 L27 17Z M46 22 L48 6 L37 17Z\" fill=\"#fff\" stroke=\"#243044\" stroke-width=\"1.5\"/><path d=\"M16 30 Q16 14 32 14 Q48 14 48 30 Q50 48 40 56 Q32 60 24 56 Q14 48 16 30Z\" fill=\"#fff\" stroke=\"#243044\" stroke-width=\"2\"/><path d=\"M24 16q-3 6 0 12M32 14v9M40 16q3 6 0 12M17 33q6 2 8 8M47 33q-6 2-8 8\" stroke=\"#243044\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><ellipse cx=\"32\" cy=\"49\" rx=\"9\" ry=\"7\" fill=\"#3a3f4a\"/><circle cx=\"29\" cy=\"49\" r=\"1.2\" fill=\"#aab4c0\"/><circle cx=\"35\" cy=\"49\" r=\"1.2\" fill=\"#aab4c0\"/><circle cx=\"24\" cy=\"35\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"24.8\" cy=\"34.2\" r=\".8\" fill=\"#fff\"/><circle cx=\"40\" cy=\"35\" r=\"2.4\" fill=\"#243044\"/><circle cx=\"40.8\" cy=\"34.2\" r=\".8\" fill=\"#fff\"/>"],"?":["Paw","#fde3cf","<ellipse cx=\"32\" cy=\"42\" rx=\"12\" ry=\"10\" fill=\"#a8683f\"/><ellipse cx=\"17\" cy=\"30\" rx=\"4.5\" ry=\"6\" fill=\"#a8683f\"/><ellipse cx=\"27\" cy=\"21\" rx=\"4.5\" ry=\"6\" fill=\"#a8683f\"/><ellipse cx=\"37\" cy=\"21\" rx=\"4.5\" ry=\"6\" fill=\"#a8683f\"/><ellipse cx=\"47\" cy=\"30\" rx=\"4.5\" ry=\"6\" fill=\"#a8683f\"/>"]};
+/* default profile picture = a cartoon animal chosen by the first letter of the player's name (E = elephant, D = dog …) */
+const animalKey = name => { const k = String(name || '').normalize('NFD').replace(/[^A-Za-z]/g, '').charAt(0).toUpperCase(); return ANIMALS[k] ? k : '?'; };
+const animalFor = name => ANIMALS[animalKey(name)];
+const ANIMAL_FACTS = {"A":["Alpacas communicate by humming to each other.","Alpacas come from the Andes mountains in South America.","Alpaca fleece is soft and warm and grows in around 22 natural shades.","Alpacas rarely spit at people; they mostly spit at other alpacas to settle arguments.","Alpacas are close relatives of llamas and camels."],"B":["A bear's sense of smell is among the best in the animal kingdom, far better than a dog's.","Many bears sleep through the coldest part of winter in a den.","Bears can run at around 50 km/h, faster than any human sprinter.","The giant panda is a bear, even though it mostly eats bamboo.","A newborn grizzly cub weighs only about half a kilogram."],"C":["Cats sleep for about 12 to 16 hours a day.","A cat can rotate each ear up to about 180 degrees.","Cats have a third eyelid that helps protect their eyes.","A cat can jump about five times its own body length.","Cat purrs vibrate at roughly 25 to 150 times per second."],"D":["A dog has around 300 million smell receptors; humans have about 6 million.","Every dog's nose print is unique, like a human fingerprint.","Some dogs can learn the meaning of more than 100 words.","Dogs cool down mostly by panting and sweat a little through their paw pads.","Puppies are born deaf and blind and open their eyes after about two weeks."],"E":["An elephant's trunk has around 40,000 muscles.","Elephants are pregnant for about 22 months, the longest of any land animal.","Elephant tusks are actually very long front teeth.","Elephants are among the few animals that cannot jump.","Elephants can recognise themselves in a mirror."],"F":["Foxes can make about 40 different sounds.","A fox has vertical slit pupils, like a cat.","Foxes seem to use the Earth's magnetic field to help them pounce on prey.","Red foxes live on almost every continent.","Baby foxes are called kits or pups."],"G":["Giraffes are the tallest land animals, reaching about 5.5 metres.","A giraffe's tongue is around 45 cm long and dark purple.","A giraffe has only seven neck bones, the same number as a human.","Giraffes sleep for just 30 minutes to 2 hours a day.","A baby giraffe is about 1.8 metres tall at birth and can stand within an hour."],"H":["A hedgehog has roughly 5,000 to 7,000 spines.","Hedgehogs roll into a tight ball when they feel threatened.","Hedgehogs are mostly active at night.","Baby hedgehogs are called hoglets.","Many hedgehogs hibernate through winter."],"I":["Green iguanas can survive falls of more than 10 metres from trees.","Iguanas have a \"third eye\" on top of the head that senses light and shadow.","An iguana can stay underwater for up to about 30 minutes.","Most iguanas eat plants, leaves and fruit.","If caught by the tail, an iguana can drop it and grow a new one."],"J":["A jellyfish is about 95% water.","Jellyfish have no brain, heart or bones.","Jellyfish have drifted in the oceans for over 500 million years.","Some jellyfish glow in the dark.","A box jellyfish has 24 eyes."],"K":["Koalas can sleep up to 20 hours a day.","Koalas eat mostly eucalyptus leaves, which have very little energy.","Koala fingerprints are so similar to ours they can look alike under a microscope.","A baby koala is called a joey and stays in its mother's pouch for about six months.","Koalas are marsupials, not bears."],"L":["A lion's roar can be heard from about 8 km away.","Lions are the only big cats that live in groups, called prides.","Lions sleep for up to 20 hours a day.","In a pride, the lionesses do most of the hunting.","Lion cubs are born with spots that fade as they grow."],"M":["Monkeys have tails, while most apes do not.","Capuchin monkeys use stones as tools to crack open nuts.","A group of monkeys is called a troop.","Spider monkeys can use their tails like a fifth hand.","Japanese macaques relax in hot springs in winter."],"N":["A narwhal's \"tusk\" is an extra-long tooth that can grow up to 3 metres.","Narwhals are nicknamed the unicorns of the sea.","Narwhals live in the cold Arctic waters.","Narwhals can dive more than 1,500 metres deep.","Narwhals travel in groups called pods."],"O":["Owls can turn their heads about 270 degrees.","Owls fly almost silently because of their soft feathers.","An owl's eyes are fixed in their sockets, which is why it turns its whole head.","A group of owls is called a parliament.","Owls swallow prey whole and later cough up the bones and fur as pellets."],"P":["Most penguins live in the Southern Hemisphere.","Penguins cannot fly but are excellent swimmers.","Male emperor penguins keep the egg warm on their feet for about two months.","A penguin's black back and white belly help hide it from predators in the water.","Emperor penguins can dive deeper than 500 metres."],"Q":["Quokkas look like they are always smiling.","Quokkas live on Rottnest Island and nearby areas of Western Australia.","Quokkas are marsupials: babies grow in their mother's pouch.","Quokkas are mostly active at night.","Quokkas can survive for long stretches with very little fresh water."],"R":["A rabbit's teeth never stop growing.","Rabbits can see almost all the way around them without turning their heads.","Baby rabbits are called kits.","When rabbits are very happy they jump and twist in the air, called a \"binky\".","Rabbits live in burrow systems called warrens."],"S":["Sloths move so slowly that algae can grow in their fur.","Sloths sleep for around 9 to 15 hours a day.","Sloths only climb down from the trees about once a week.","Sloths are surprisingly good swimmers.","A sloth can turn its head about 270 degrees."],"T":["A turtle's shell is part of its skeleton and is made of about 50 bones.","Some turtles live for more than 100 years.","Sea turtles return to the beach where they hatched to lay their own eggs.","For many turtles, the temperature of the nest decides whether the babies are male or female.","Turtles have lived on Earth for more than 200 million years."],"U":["The unicorn is the national animal of Scotland.","Unicorn legends are thousands of years old; carved unicorn-like seals were made in the ancient Indus Valley.","Sailors once sold narwhal tusks as \"unicorn horns\".","In old stories, a unicorn horn could make poisoned water safe to drink.","Unicorns are mythical, so no real one has ever been found."],"V":["Vipers have long hinged fangs that fold back when their mouth is closed.","Many vipers give birth to live young instead of laying eggs.","Pit vipers have heat-sensing pits that detect warm prey in the dark.","Vipers live on every continent except Antarctica and Australia.","A snake smells by flicking its forked tongue in the air."],"W":["The blue whale is the largest animal known ever to have lived.","Whales breathe air through a blowhole on top of their heads.","Whales are mammals: mothers feed their calves milk.","Male humpback whales sing long, complex songs.","Baleen whales strain tiny krill from the water instead of using teeth."],"X":["A xerus is an African ground squirrel.","Xerus use their bushy tails like a parasol to shade themselves from the sun.","Xerus live in burrows in dry, open habitats.","Xerus have stiff, bristly fur.","Xerus often stand up on their hind legs to look out for danger."],"Y":["Yaks live in the Himalayas and graze at heights of up to about 6,000 metres.","A yak's thick shaggy coat keeps it warm in freezing temperatures.","People keep yaks for milk, wool and carrying heavy loads.","Wild yaks are bigger than domesticated yaks.","The yak's scientific name, Bos grunniens, means \"grunting ox\"."],"Z":["Every zebra's stripe pattern is unique, like a fingerprint.","Zebra stripes may help keep biting flies away.","Zebras can run at about 65 km/h.","A baby zebra can stand within minutes of being born.","A group of zebras is called a herd or a dazzle."],"?":["Every animal in the wild has a special way to survive.","Animals can communicate with sounds, smells and movement.","Baby animals often look very different from their parents.","Some animals can sense things humans cannot.","Scientists discover new animal species every year."]};
+const lastFact = {};
+function showAnimalFact() {
+  const k = animalKey(S.user.name), an = ANIMALS[k], list = ANIMAL_FACTS[k];
+  let i; do { i = Math.floor(Math.random() * list.length); } while (list.length > 1 && i === lastFact[k]);
+  lastFact[k] = i;
+  let m = document.getElementById('factModal');
+  if (!m) { m = document.createElement('div'); m.id = 'factModal'; m.className = 'fm'; m.addEventListener('click', e => { if (e.target === m) m.classList.remove('on'); }); document.body.appendChild(m); }
+  m.innerHTML = `<div class="fmbox" role="dialog" aria-modal="true" aria-label="${an[0]} fact"><div class="av an"><svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" fill="${an[1]}"/>${an[2]}</svg></div><h3>${an[0]}</h3><div class="fmk">Did you know?</div><p>${esc(list[i])}</p><div class="fmn">Fact ${i + 1} of ${list.length}</div><div class="fmbtns"><button class="btn" data-act="factAgain">Another fact</button><button class="btn ghost" data-act="factClose">Close</button></div></div>`;
+  m.classList.add('on');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { const m = document.getElementById('factModal'); if (m) m.classList.remove('on'); } });
+const avHTML = (a, name, cls) => {
+  const s = avSrc(a);
+  if (s) return `<div class="av ${cls || ''}"><img src="${s}" alt=""></div>`;
+  const an = animalFor(name);
+  return `<div class="av an ${cls || ''}" role="img" aria-label="${an[0]} avatar"><svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" fill="${an[1]}"/>${an[2]}</svg></div>`;
+};
+function viaImg(file) { return new Promise((res, rej) => { const u = URL.createObjectURL(file), im = new Image(); im.onload = () => { URL.revokeObjectURL(u); res(im); }; im.onerror = () => { URL.revokeObjectURL(u); rej(new Error('bad image')); }; im.src = u; }); }
+function loadBitmap(file) { return window.createImageBitmap ? createImageBitmap(file, { imageOrientation: 'from-image' }).catch(() => viaImg(file)) : viaImg(file); }
+function squareJpeg(src, size, q) {
+  const w = src.width, h = src.height, m = Math.min(w, h), c = document.createElement('canvas'); c.width = c.height = size;
+  const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, size, size);
+  x.drawImage(src, (w - m) / 2, (h - m) / 2, m, m, 0, 0, size, size);
+  return c.toDataURL('image/jpeg', q);
+}
+async function setAvatar(file) {
+  if (!file) return;
+  if (!/^image\//.test(file.type)) return toast('Please choose an image file.', 'bad');
+  if (file.size > 15 * 1024 * 1024) return toast('That image is too large. Choose one under 15 MB.', 'bad');
+  try {
+    const bmp = await loadBitmap(file);
+    S.user.avatar = squareJpeg(bmp, 160, 0.82); S.user.thumb = squareJpeg(bmp, 40, 0.7);
+  } catch (e) { return toast('Could not read that image. Try a JPG or PNG.', 'bad'); }
+  render(); await saveUser(); await pushScore(); toast('Profile picture updated.', 'ok');
+}
+async function clearAvatar() { S.user.avatar = ''; S.user.thumb = ''; render(); await saveUser(); await pushScore(); toast('Profile picture removed.', 'ok'); }
+
+function friendly(e) {
+  const m = String((e && e.message) || '').toLowerCase();
+  if (e instanceof TypeError || /failed to fetch|network|load failed/.test(m)) return 'Could not reach the server. Check your connection and the SUPABASE_URL in CONFIG.';
+  if (/invalid api key|apikey/.test(m)) return 'Supabase rejected the key. Check SUPABASE_ANON_KEY in CONFIG (use the anon / publishable key).';
+  if (/not authorized|not authorised/.test(m)) return 'Supabase will only email its own team members until you add custom SMTP (Authentication > SMTP Settings).';
+  if (/error sending|sending.*email|smtp/.test(m)) return 'Supabase could not send the email. Check Authentication > SMTP Settings.';
+  if (/signups? not allowed|signup.*disabled/.test(m)) return 'New sign-ups are switched off in Supabase. Turn on "Allow new users to sign up" under Authentication.';
+  if (e && e.status === 429 || /rate limit|too many|seconds/.test(m)) return 'Too many attempts. Wait a minute, then try again.';
+  if (/expired|invalid|otp|token/.test(m)) return 'That code is wrong or has expired. Request a new one.';
+  return 'Sign-in failed: ' + ((e && e.message) || 'unknown error') + (e && e.status ? ' (HTTP ' + e.status + ')' : '');
+}
+
+/* ---------------------------------------------------------------------
+   2. CONTENT
+   Question format: [question, CORRECT, wrong, wrong, wrong, explanation]
+   (options are shuffled each time a lesson starts). Chemistry questions follow the
+   Cambridge A-Level Chemistry (9701) syllabus. When the page is hosted, a questions.json file
+   next to it (if present) replaces the built-in questions for the units it lists.
+   --------------------------------------------------------------------- */
+const CUR = {
+  chem: { name: 'Chemistry', sems: [
+    { tab: "Physical", title: "Physical chemistry", blurb: "Atomic structure, bonding, states of matter, energetics, electrochemistry, equilibria and kinetics.", units: [["a01", "Atomic structure", "⚛️"], ["a02", "Atoms, molecules and stoichiometry", "⚖️"], ["a03", "Chemical bonding", "🔗"], ["a04", "States of matter", "🎈"], ["a05", "Chemical energetics", "🔥"], ["a06", "Electrochemistry", "🔋"], ["a07", "Equilibria", "⇄"], ["a08", "Reaction kinetics", "⏱️"]] },
+    { tab: "Inorganic", title: "Inorganic chemistry", blurb: "Periodicity, Group 2, Group 17, and nitrogen and sulfur.", units: [["a09", "The Periodic Table: chemical periodicity", "🧂"], ["a10", "Group 2", "⚪"], ["a11", "Group 17", "🟢"], ["a12", "Nitrogen and sulfur", "🌫️"]] },
+    { tab: "Organic", title: "Organic chemistry", blurb: "From AS organic basics and hydrocarbons to polymers and synthesis.", units: [["a13", "An introduction to AS Level organic chemistry", "🏷️"], ["a14", "Hydrocarbons", "⛓️"], ["a15", "Halogen compounds", "🧫"], ["a16", "Hydroxy compounds", "🍷"], ["a17", "Carbonyl compounds", "🧪"], ["a18", "Carboxylic acids and derivatives", "🍋"], ["a19", "Nitrogen compounds", "💧"], ["a20", "Polymerisation", "🧶"], ["a21", "Organic synthesis", "🧩"]] }
+  ]},
+  bio: { name: 'Biology', sems: [
+    { title: 'The basics', blurb: 'Cells, biomolecules, membranes and the cell cycle.', units: [['ab1a','Cell structure','🔬'],['ab1b','Biomolecules and enzymes','🧬'],['ab1c','Membranes, DNA and division','🧫']] },
+    { title: 'Human physiology', blurb: 'Circulation, digestion, excretion and control systems.', units: [['ab2a','Circulation and breathing','❤️'],['ab2b','Digestion and excretion','🍽️'],['ab2c','Nerves and hormones','🧠']] },
+    { title: 'Ecology', blurb: 'Energy flow, populations, nutrient cycles and human impact.', units: [['ab3a','Ecosystems and energy flow','🌱'],['ab3b','Populations and biodiversity','🦌'],['ab3c','Nutrient cycles and human impact','♻️']] }
+  ]}
+};
+
+const QUESTIONS = {
+a01:[],
+a02:[],
+a03:[],
+a04:[],
+a05:[],
+a06:[],
+a07:[],
+a08:[],
+a09:[],
+a10:[],
+a11:[],
+a12:[],
+a13:[],
+a14:[],
+a15:[],
+a16:[],
+a17:[],
+a18:[],
+a19:[],
+a20:[],
+a21:[],
+ab1a:[
+["Which organelle is the main site of aerobic respiration?","Mitochondrion","Chloroplast","Ribosome","Golgi apparatus","Mitochondria produce most of the cell's ATP using oxygen."],
+["Which structure is found in plant cells but not animal cells?","Chloroplast","Ribosome","Nucleus","Mitochondrion","Plant cells also have a cellulose cell wall and a large vacuole."],
+["Prokaryotic cells differ from eukaryotic cells because they lack…","A membrane-bound nucleus","Ribosomes","DNA","A cell membrane","Prokaryote DNA lies free in the cytoplasm."],
+["Where does protein synthesis take place?","Ribosomes","Lysosomes","Smooth ER","Cell wall","Ribosomes translate mRNA into polypeptides."],
+["Why is rough endoplasmic reticulum ‘rough’?","Ribosomes are attached to its surface","It is covered in lipid droplets","It has a folded cell wall","It contains DNA","Those ribosomes make proteins that enter the ER."],
+["What does the Golgi apparatus do?","Modifies, packages and sorts proteins","Makes ATP","Digests worn-out organelles","Stores genetic information","Vesicles carry finished proteins to the membrane or elsewhere."]],
+ab1b:[
+["What are the monomers of proteins?","Amino acids","Nucleotides","Monosaccharides","Fatty acids","Amino acids join to form polypeptide chains."],
+["Which bond joins two amino acids?","Peptide bond","Glycosidic bond","Ester bond","Phosphodiester bond","A condensation reaction links the carboxyl group of one amino acid to the amino group of the next."],
+["Why is an enzyme specific to its substrate?","The active site has a complementary shape","It is made of lipids","It changes the substrate's temperature","It is used up in the reaction","Only substrates that fit the active site can form an enzyme–substrate complex."],
+["Why do enzymes stop working at high temperature?","Bonds break and the active site changes shape","The substrate evaporates","Water is lost from the enzyme","The enzyme turns into a lipid","Denaturation alters the tertiary structure, so the substrate no longer fits."],
+["Which molecule is the main long-term energy store in animals?","Triglyceride (fat)","Starch","Cellulose","DNA","Lipids store more energy per gram than carbohydrates."],
+["Two glucose molecules join to form maltose by…","Condensation, releasing water","Hydrolysis, using water","Oxidation","Reduction","A glycosidic bond forms as a water molecule is removed."]],
+ab1c:[
+["The fluid mosaic model describes the membrane as…","A phospholipid bilayer with embedded proteins","A single layer of protein","A rigid cellulose sheet","Two layers of DNA","Phospholipids and proteins can move within the layer."],
+["Osmosis is the movement of water from…","Higher to lower water potential through a partially permeable membrane","Lower to higher water potential through a partially permeable membrane","High to low solute concentration through any barrier","One cell to another using ATP","Water moves down its water potential gradient without needing energy."],
+["Which base pairs are found in DNA?","A–T and C–G","A–U and C–G","A–G and C–T","A–C and G–T","Adenine pairs with thymine (two hydrogen bonds); cytosine with guanine (three)."],
+["In which phase of mitosis do chromosomes line up at the cell's equator?","Metaphase","Prophase","Anaphase","Telophase","Spindle fibres attach to centromeres at the equator during metaphase."],
+["Meiosis produces…","Four genetically different haploid cells","Two identical diploid cells","Two identical haploid cells","Four identical diploid cells","Crossing over and independent assortment create variation."],
+["Which process makes mRNA from a DNA template?","Transcription","Translation","Replication","Mutation","RNA polymerase builds mRNA complementary to the template strand."]],
+ab2a:[
+["Which heart chamber pumps blood to the whole body?","Left ventricle","Right ventricle","Left atrium","Right atrium","The left ventricle has the thickest wall to generate high pressure."],
+["Which vessel carries oxygenated blood from the lungs to the heart?","Pulmonary vein","Pulmonary artery","Aorta","Vena cava","It enters the left atrium."],
+["Where does gas exchange occur in the lungs?","Alveoli","Bronchi","Trachea","Diaphragm","Alveoli have thin walls and a large surface area surrounded by capillaries."],
+["Which molecule in red blood cells carries oxygen?","Haemoglobin","Insulin","Amylase","Fibrinogen","Haemoglobin binds oxygen to form oxyhaemoglobin."],
+["What happens to the diaphragm during inhalation?","It contracts and flattens","It relaxes and domes upwards","It moves sideways","Nothing; only the ribs move","This increases chest volume and lowers pressure, drawing air in."],
+["In which vessels is blood pressure highest?","Arteries","Veins","Capillaries","Venules","Arteries receive blood directly from the contracting ventricles."]],
+ab2b:[
+["Which enzyme in saliva begins starch digestion?","Salivary amylase","Pepsin","Lipase","Trypsin","Amylase breaks starch into maltose."],
+["Where does most nutrient absorption happen?","Small intestine","Stomach","Oesophagus","Large intestine","Villi in the small intestine give a large surface area."],
+["What does bile do?","Emulsifies fats","Digests proteins","Digests starch","Absorbs water","Bile salts break fat into droplets, giving lipase more surface area."],
+["What is the functional unit of the kidney?","Nephron","Neurone","Alveolus","Villus","Each kidney has about a million nephrons that filter blood."],
+["Where is urea made?","Liver","Kidney","Pancreas","Bladder","The liver deaminates excess amino acids and converts the ammonia to urea."],
+["What does ADH do in the kidney?","Makes the collecting duct more permeable to water","Makes the collecting duct less permeable to water","Increases glucose reabsorption","Breaks down urea","More water is reabsorbed, producing a smaller volume of concentrated urine."]],
+ab2c:[
+["What is the basic unit of the nervous system?","Neurone","Nephron","Neutrophil","Nucleus","Neurones carry electrical impulses."],
+["What is the gap between two neurones called?","Synapse","Node of Ranvier","Axon","Dendrite","Neurotransmitters diffuse across the synaptic cleft."],
+["Which hormone lowers blood glucose?","Insulin","Glucagon","Adrenaline","Thyroxine","β cells in the pancreas release insulin when glucose is high."],
+["Which gland is often called the master gland?","Pituitary","Thyroid","Adrenal","Pancreas","It releases hormones that control many other endocrine glands."],
+["What is the correct order of a reflex arc?","Receptor → sensory neurone → relay neurone → motor neurone → effector","Receptor → motor neurone → relay neurone → sensory neurone → effector","Effector → sensory neurone → relay neurone → motor neurone → receptor","Receptor → relay neurone → effector → sensory neurone → motor neurone","The relay neurone in the spinal cord links the sensory and motor pathways."],
+["What does negative feedback do?","Reverses a change to restore the set point","Amplifies a change","Stops all responses","Only occurs in plants","Examples include body temperature and blood glucose control."]],
+ab3a:[
+["What are producers?","Organisms that make their own food, usually by photosynthesis","Animals that eat plants","Organisms that break down dead matter","Animals that eat other animals","They form the first trophic level."],
+["Roughly what percentage of energy passes from one trophic level to the next?","About 10%","About 50%","About 90%","About 100%","Most energy is lost as heat, in waste, or in uneaten parts."],
+["What do decomposers do?","Break down dead matter and recycle nutrients","Make glucose by photosynthesis","Hunt other animals","Only fix nitrogen","Fungi and bacteria release nutrients back into the soil."],
+["A primary consumer is a…","Herbivore","Carnivore that eats herbivores","Producer","Decomposer","It feeds directly on producers."],
+["How does a food web differ from a food chain?","It shows many interconnected feeding relationships","It shows only one feeding path","It only includes plants","It shows energy gains only","Most organisms eat, or are eaten by, several species."],
+["Which of these is a biotic factor?","Predation","Temperature","Soil pH","Rainfall","Biotic factors are caused by living organisms."]],
+ab3b:[
+["What is carrying capacity?","The largest population an environment can sustain","The number of species in an ecosystem","The birth rate of a population","The total biomass of producers","It is limited by resources such as food, water and space."],
+["Interspecific competition occurs between…","Members of different species","Members of the same species","Producers only","Predators and their prey only","Intraspecific competition happens within one species."],
+["What does Simpson's diversity index take into account?","The number of species and how evenly individuals are spread","Only the number of individuals","Only the largest species","Soil nutrients","It gives a single measure of biodiversity for a habitat."],
+["Which limiting factor is density-dependent?","Competition for food","A volcanic eruption","A hurricane","A forest fire","Its effect grows as the population gets denser."],
+["What is the mark–release–recapture method used for?","Estimating the size of a mobile animal population","Measuring soil pH","Counting plant species","Tracking energy flow","Population ≈ (number marked × second sample) ÷ number recaptured."],
+["What is a keystone species?","One with a disproportionately large effect on its ecosystem","The most abundant species","The largest animal","An invasive species","Removing it can cause major changes to community structure."]],
+ab3c:[
+["Which bacteria convert ammonium ions into nitrites and then nitrates?","Nitrifying bacteria","Nitrogen-fixing bacteria","Denitrifying bacteria","Decomposer fungi","Nitrification makes nitrate available for plants to take up."],
+["What do nitrogen-fixing bacteria convert nitrogen gas into?","Ammonia (ammonium ions)","Nitrate directly","Urea","Proteins","Some live in the root nodules of legumes."],
+["Which processes return CO₂ to the atmosphere?","Respiration and combustion","Photosynthesis and respiration","Photosynthesis and combustion","Fossil fuel formation","Photosynthesis removes CO₂ from the air."],
+["What causes eutrophication?","Fertiliser run-off adding nitrates and phosphates to water","Too much oxygen in water","Overfishing","Acid rain on soil","Algal blooms block light, and decomposing algae use up oxygen."],
+["Which greenhouse gas is released in large amounts by cattle and rice paddies?","Methane","Nitrogen","Oxygen","Argon","Methane traps heat far more strongly than CO₂ per molecule."],
+["What is biomagnification?","The build-up of persistent toxins at higher trophic levels","The growth of populations","The increase of producers","The movement of nutrients into soil","Toxins like DDT accumulate in body tissues and are passed up food chains."]]
+};
+
+/* ---------------------------------------------------------------------
+   3. MIND MAP DATA (read from the organic chemistry map, propane family)
+   MN: compound key -> [display name, formula]
+   ME: reaction id  -> [from, to, reagent and conditions]
+   --------------------------------------------------------------------- */
+const MN = {
+  ALK:['Propene','CH₃CH=CH₂'], ALA:['Propane','CH₃CH₂CH₃'], CL:['1-/2-chloropropane','CH₃CH₂CH₂Cl / CH₃CHClCH₃'],
+  DCP:['1,2-dichloropropane','CH₃CHClCH₂Cl'], DIOL:['Propane-1,2-diol','CH₃CH(OH)CH₂OH'], ETHA:['Ethanoic acid + CO₂ + H₂O','CH₃COOH + CO₂ + H₂O'],
+  OL:['Propan-1-ol / propan-2-ol','CH₃CH₂CH₂OH / CH₃CH(OH)CH₃'], CARB:['Propanal / propanone','CH₃CH₂CHO / CH₃COCH₃'],
+  ACID:['Propanoic acid','CH₃CH₂COOH'], ACYL:['Propanoyl chloride','CH₃CH₂COCl'], AMIDE:['Propanamide','CH₃CH₂CONH₂'],
+  NAMIDE:['N-propylpropanamide','CH₃CH₂CONHCH₂CH₂CH₃'], SECAM:['Dipropylamine (secondary amine)','(CH₃CH₂CH₂)₂NH'],
+  ESTER:['Propyl propanoate','CH₃CH₂COOCH₂CH₂CH₃'], SALT:['Sodium propanoate','CH₃CH₂COO⁻ Na⁺'], ALKOX:['Sodium propoxide','CH₃CH₂CH₂O⁻ Na⁺'],
+  NIT:['Butanenitrile','CH₃CH₂CH₂CN'], BAM:['Butylamine','CH₃CH₂CH₂CH₂NH₂'], BACID:['Butanoic acid','CH₃CH₂CH₂COOH'],
+  AMINE:['Propylamine','CH₃CH₂CH₂NH₂'], AMMON:['Propylammonium chloride','CH₃CH₂CH₂NH₃⁺ Cl⁻'], DIAZO:['Propyldiazonium chloride','CH₃CH₂CH₂N₂⁺ Cl⁻'],
+  GRIG:['Propylmagnesium chloride','CH₃CH₂CH₂MgCl'], HNIT:['2-hydroxybutanenitrile','CH₃CH₂CH(OH)CN'], HACID:['2-hydroxybutanoic acid','CH₃CH₂CH(OH)COOH'],
+  HAMINE:['2-hydroxybutylamine','CH₃CH₂CH(OH)CH₂NH₂'], DNPH:['2,4-DNPH derivative','orange precipitate'], AG:['Propanoate ion + silver','CH₃CH₂COO⁻ + Ag + H₂O'],
+  CU:['Propanoate ion + copper(I) oxide','CH₃CH₂COO⁻ + Cu₂O + H₂O'], IODO:['Ethanoate ion + triiodomethane','CH₃COO⁻ + CHI₃ + I⁻'],
+  ALKE2:['2-methylpent-2-ene','CH₃CH₂CH=C(CH₃)₂'], G1:['Primary alcohol','CH₃CH₂CH₂CH₂OH'], G2:['Secondary alcohol','CH₃CH₂CH₂CH(R)OH'], G3:['Tertiary alcohol','CH₃CH₂CH₂C(R′)(R″)OH']
+};
+const LIAH = '1. LiAlH₄, dry ether  2. H₃O⁺';
+const ME = {
+  e1:['ALK','ALA','H₂ / Ni, heat'], e2:['ALK','DCP','Cl₂ in CCl₄'], e3:['ALK','DIOL','Cold, dilute KMnO₄ / H⁺'], e4:['ALK','ETHA','Hot, concentrated KMnO₄ / H⁺'],
+  e5:['ALK','CL','HCl'], e6:['CL','ALK','Ethanolic NaOH, heat'], e7:['ALA','CL','Cl₂, UV light'], e8:['ALK','OL','H₂O / H₃PO₄, heat'],
+  e9:['OL','ALK','Conc. H₂SO₄, heat'], e10:['CL','OL','NaOH(aq), heat'], e11:['OL','CL','SOCl₂'], e12:['OL','CARB','Cu, heat'],
+  e13:['CARB','OL',LIAH], e14:['CARB','ACID','KMnO₄ / H⁺, heat'], e15:['CARB','AG',"Tollens' reagent, heat"], e16:['CARB','CU',"Fehling's solution, heat"],
+  e17:['CARB','IODO','I₂ in NaOH, heat'], e18:['CARB','DNPH','2,4-dinitrophenylhydrazine'], e19:['CARB','HNIT','HCN / NaCN'],
+  e20:['ALKE2','CARB','1. O₃, CH₂Cl₂, cold  2. DMS'], e21:['HNIT','HACID','H₂O / HCl, heat'], e22:['HNIT','HAMINE','1. LiAlH₄, dry ether  2. H₂O'],
+  e23:['ACID','OL',LIAH], e24:['ACID','SALT','Na, NaOH or Na₂CO₃'], e25:['SALT','ACID','HCl'], e26:['ACID','ACYL','SOCl₂, heat'],
+  e27:['ACYL','ACID','H₂O'], e28:['ACYL','AMIDE','NH₃'], e29:['ACID','AMIDE','Conc. NH₃, heat'], e30:['ACYL','NAMIDE','CH₃CH₂CH₂NH₂ (as the amine reagent)'],
+  e31:['AMIDE','AMINE',LIAH], e32:['ACID','ESTER','Propan-1-ol, conc. H₂SO₄, heat'], e33:['ESTER','ACID','H₂O / dil. H₂SO₄, heat'], e34:['ESTER','OL',LIAH],
+  e35:['OL','ALKOX','Na'], e36:['ALKOX','OL','H₂O'], e37:['CL','NIT','KCN, ethanol, heat'], e38:['NIT','BAM',LIAH], e39:['NIT','BACID','H₂O / HCl, heat'],
+  e40:['CL','AMINE','Conc. NH₃, ethanol, heat'], e41:['AMINE','AMMON','HCl'], e42:['AMINE','DIAZO','NaNO₂ + HCl, cold'], e43:['DIAZO','OL','H₂O, warm'],
+  e44:['CL','GRIG','Mg, dry ether'], e45:['GRIG','BACID','1. CO₂, dry ether  2. H₃O⁺'], e46:['GRIG','G1','1. Methanal, HCHO  2. H₃O⁺'],
+  e47:['GRIG','G2','1. Aldehyde, RCHO  2. H₃O⁺'], e48:['GRIG','G3','1. Ketone, RCOR′  2. H₃O⁺'], e49:['NAMIDE','SECAM',LIAH]
+};
+const MM_LEVELS = [
+  {id:'mm1', title:'Alkene hub',            icon:'🧪', center:'ALK',   edges:['e1','e2','e3','e4','e5','e6','e8','e9']},
+  {id:'mm2', title:'Haloalkane hub',        icon:'🧫', center:'CL',    edges:['e5','e7','e11','e6','e10','e37','e40','e44']},
+  {id:'mm3', title:'Alcohol hub',           icon:'🍷', center:'OL',    edges:['e8','e10','e13','e23','e36','e9','e11','e12','e35']},
+  {id:'mm4', title:'Carbonyl hub',          icon:'🔥', center:'CARB',  edges:['e12','e20','e13','e14','e15','e16','e18','e19']},
+  {id:'mm5', title:'Carboxylic acid hub',   icon:'🍋', center:'ACID',  edges:['e25','e27','e33','e23','e24','e26','e29','e32']},
+  {id:'mm6', title:'Acyl chloride and amides', icon:'⚗️', center:'ACYL', edges:['e26','e27','e28','e30','e29','e31','e49']},
+  {id:'mm7', title:'Nitriles and amines',   icon:'💧', center:'CL',    edges:['e37','e38','e39','e40','e41','e42','e43']},
+  {id:'mm8', title:'Grignard and cyanohydrins', icon:'🧲', center:'GRIG', edges:['e44','e45','e46','e47','e48','e19','e21','e22']},
+  {id:'mm9', title:'Full map boss round',   icon:'👑', center:null, boss:true}
+];
+
+/* lesson registry */
+const MM_ENABLED = false; /* STPM mind map switched off until an A-Level organic synthesis map is built */
+const LESSONS = {};
+for (const sk of ['chem','bio']) CUR[sk].sems.forEach((s, si) => s.units.forEach(([id, title, icon]) => { LESSONS[id] = { id, subject: sk, sem: si, title, icon, kind: 'mcq', group: s.title }; }));
+MM_LEVELS.forEach(l => { LESSONS[l.id] = { id: l.id, subject: 'chem', sem: 2, title: l.title, icon: l.icon, kind: 'mm', group: 'Mind map challenge' }; });
+
+/* ---------------------------------------------------------------------
+   4. STATE AND SCORING
+   Points for a correct answer = answer speed x correct streak x accuracy
+     speed    1-10  (10 = instant, falls to 1 as the time limit runs out)
+     streak   correct answers in a row this run (resets on a miss)
+     accuracy running share of answers correct this run (0-1)
+   A wrong answer scores 0. Your leaderboard score is the sum of your
+   best run on every lesson, so replaying can only improve it.
+   --------------------------------------------------------------------- */
+const TIME_LIMIT_Q = 20, TIME_LIMIT_MM = 25;
+/* Harder questions get a slower timer (seconds). In questions.json you can set "difficulty": "easy" | "medium" | "hard" (or 1-3)
+   on any question to override the automatic estimate below. */
+const TIME_BY_LEVEL = { 1: 20, 2: 30, 3: 45 }, LEVEL_NAME = { 1: 'Easy', 2: 'Medium', 3: 'Hard' };
+const negQ = s => /\b(is|are|does|do|can|will|would)\s+not\b|\bcannot\b|\bnot (true|correct)\b|\bincorrect\b|\bexcept\b|\bfalse\b/i.test(s);
+function levelOf(x) {
+  const e = String(x.diff || '').toLowerCase();
+  if (/^(1|easy)/.test(e)) return 1; if (/^(2|med)/.test(e)) return 2; if (/^(3|hard)/.test(e)) return 3;
+  const nums = (x.q.match(/\d+(\.\d+)?/g) || []).length;
+  const calc = x.opts.filter(o => /\d/.test(o)).length >= 3 && /calculat|what is the|how many|what (mass|volume)|percentage|concentration|ratio|relative/i.test(x.q);
+  let sc = 0;
+  if (calc) sc += 2 + (nums >= 3 ? 1 : 0);
+  if (/\bI: /.test(x.q)) sc++;
+  if (negQ(x.q)) sc++;
+  if (x.q.length > 180) sc++;
+  if (x.img) sc++;
+  return sc >= 3 ? 3 : sc === 2 ? 2 : 1;
+}
+/* explains why the option the player chose is wrong. Uses a per-option note from questions.json ("why_wrong": {"A": "...", ...}) when present */
+function whyWrong(q, idx) {
+  const mine = q.opts[idx];
+  let t = q.why && q.why[mine];
+  if (!t) {
+    const num = s => parseFloat((s.match(/-?\d+(\.\d+)?/) || [])[0]), plain = s => !/[×^⁰-⁹]/.test(s), r = num(mine) / num(q.a);
+    if (negQ(q.q)) t = `The question is worded negatively: it wants the option that is false or does not fit. “${mine}” is a valid statement, so it cannot be the answer. Test each option against that wording.`;
+    else if (isFinite(r) && plain(mine) && plain(q.a) && [2, 0.5, 10, 0.1, 1000, 0.001].some(f => Math.abs(r / f - 1) < 0.02)) t = `Your value is ${+r.toPrecision(3)}× the correct one. That pattern usually means a missed mole ratio, an atoms-versus-molecules mix-up or a unit or power-of-ten slip. Recheck each step.`;
+    else if (q.opts.filter(o => /\d/.test(o)).length >= 3 && /\d/.test(mine)) t = `“${mine}” does not match the value the data give (${q.a}). Recheck the working, the units and which quantity the question asks for.`;
+    else t = `“${mine}” does not fit what the question asks. Compare it with the correct answer, ${q.a}, and look for the detail that separates them.`;
+  }
+  return `<div class="why"><b>Why ${'ABCD'[idx]} is wrong</b>${esc(t)}</div>`;
+}
+function calcPoints(t, limit, streak, correct, answered) {
+  const speed = Math.max(1, Math.round(10 * (1 - t / limit)));
+  const acc = answered ? correct / answered : 0;
+  return { speed, streak, acc, pts: Math.max(1, Math.round(speed * streak * acc)) };
+}
+
+/* Two sections (STPM, A-Level) share one account and one leaderboard. A lesson id says which section it is from:
+   a01.. = A-Level chemistry, ab1a.. = A-Level biology, anything else (c.., b.., mm..) = STPM. */
+const PROG = 'alevel', PROGS = { stpm: 'STPM', alevel: 'A-Level' };
+const OTHER = { stpm: 'indexALEVEL.html', alevel: 'indexSTPM.html' };   /* page each section links to; change if you rename the files */
+const progOf = id => /^(a\d|ab)/.test(id) ? 'alevel' : 'stpm';
+const subjOf = id => /^(c|a\d|mm)/.test(id) ? 'chem' : 'bio';
+const progBarHTML = () => `<div class="progbar" role="navigation" aria-label="Syllabus">${['stpm', 'alevel'].map(p => p === PROG ? `<span class="on" aria-current="page">${PROGS[p]}</span>` : `<a href="${OTHER[PROG]}">${PROGS[p]}</a>`).join('')}</div>`;
+const S = { ready:false, screen:'login', login:{ step:'email', email:'', name:'' }, user:null, subject:'chem', sem:{chem:0,bio:0}, tab:'learn', sheet:null,
+  board:[], boardFilter:'total', boardProg:PROG, community:[], bankTab:'add', bankUnit:'a01', browseUnit:'all', bulk:null, result:null, rv:{ stars:0 } };
+let G = null; // current run
+
+function allTotals() {
+  const t = { stpm: { chem: 0, bio: 0, total: 0 }, alevel: { chem: 0, bio: 0, total: 0 } };
+  for (const [id, p] of Object.entries((S.user && S.user.progress) || {})) { const b = (p && p.best) || 0, x = t[progOf(id)], s = subjOf(id); x[s] += b; x.total += b; }
+  return t;
+}
+function totals() { return allTotals()[PROG]; }   /* this section's score */
+/* the player's leaderboard row: both sections plus the overall sum (root chem/bio/total = overall, so server ordering still works) */
+function myRow() { const t = allTotals(); return { pid: S.user.pid, name: S.user.name, stpm: t.stpm, alevel: t.alevel, chem: t.stpm.chem + t.alevel.chem, bio: t.stpm.bio + t.alevel.bio, total: t.stpm.total + t.alevel.total, av: S.user.thumb || '', ts: Date.now() }; }
+/* score of a row for a section ('stpm' | 'alevel' | 'all') and subject ('total' | 'chem' | 'bio'); rows saved before the split count in Overall only */
+const scoreOf = (r, prog, f) => (r.stpm || r.alevel) ? (prog === 'all' ? ['stpm', 'alevel'] : [prog]).reduce((n, p) => n + ((r[p] || {})[f] || 0), 0) : (prog === 'all' ? r[f] || 0 : 0);
+async function saveUser() { const ok = await DB.set('user:' + S.user.id, S.user, false); if (!ok) toast('Could not save your progress. Check your connection.', 'bad'); return ok; }
+async function pushScore() { await DB.set('lb:' + S.user.pid, myRow(), true); }
+async function loadBoard() {
+  try {
+    const rows = await DB.listValues('lb:', true, { limit: 200, order: 'value->total.desc' });
+    S.board = rows.filter(r => r && r.pid && typeof r.total === 'number');
+  } catch (e) { /* keep the last board we had */ }
+  if (S.user && !S.board.some(r => r.pid === S.user.pid)) S.board.push(myRow());
+}
+async function loadCommunity() {
+  try {
+    const recs = await DB.listValues('cq:', true, { limit: 400, order: 'updated_at.asc' });
+    S.community = recs.filter(r => r && LESSONS[r.unit] && LESSONS[r.unit].kind === 'mcq' && Array.isArray(r.opts) && r.opts.length === 4 && Number.isInteger(r.c) && r.c >= 0 && r.c < 4 && typeof r.q === 'string').sort((a, b) => (a.ts || 0) - (b.ts || 0));
+  } catch (e) { /* keep what we had */ }
+}
+/* optional: a questions.json next to this page overrides the built-in questions per unit.
+   Accepts {"a01":[{question, option_a..option_d, answer:"A", explanation}], ...} or the compact array form. */
+async function loadExternalQuestions() {
+  if (!/^https?:$/.test(location.protocol)) return;
+  try {
+    const r = await fetch('questions_ALEVEL.json', { cache: 'no-cache' }); if (!r.ok) return;
+    const d = await r.json();
+    for (const [unit, list] of Object.entries(d)) {
+      if (!LESSONS[unit] || LESSONS[unit].kind !== 'mcq' || !Array.isArray(list)) continue;
+      const out = [];
+      for (const q of list) {
+        if (Array.isArray(q) && q.length >= 5 && q.slice(0, 5).every(x => typeof x === 'string' && x.trim())) out.push([q[0], q[1], q[2], q[3], q[4], q[5] || '', q[6] || '', q[7] || '', q[8] || '', q[9] || null]);
+        else if (q && typeof q === 'object' && q.question) {
+          const o = ['a', 'b', 'c', 'd'].map(k => q['option_' + k]), ci = 'ABCD'.indexOf(String(q.answer).trim().toUpperCase());
+          if (o.every(x => typeof x === 'string' && x.trim()) && ci >= 0) out.push([q.question, o[ci], ...o.filter((_, i) => i !== ci), q.explanation || '', typeof q.image === 'string' ? q.image : '', q.alt || '', q.difficulty || '', whyMap(q.why_wrong, o)]);
+        }
+      }
+      if (out.length) QUESTIONS[unit] = out;
+    }
+  } catch (e) { /* use the built-in questions */ }
+}
+function whyMap(w, o) {
+  if (!w || typeof w !== 'object') return null;
+  const m = {}; 'ABCD'.split('').forEach((L, i) => { if (typeof w[L] === 'string' && w[L].trim()) m[o[i]] = w[L].trim(); });
+  return m;
+}
+function rankOf(prog, f) {
+  const mine = scoreOf(myRow(), prog, f); if (!(mine > 0)) return null;
+  return S.board.filter(r => r.pid !== S.user.pid && scoreOf(r, prog, f) > mine).length + 1;
+}
+
+function sections(sk, si) {
+  const s = CUR[sk].sems[si];
+  const out = [{ ids: s.units.map(u => u[0]) }];
+  if (MM_ENABLED && sk === 'chem' && si === 2) out.push({ mm: true, ids: MM_LEVELS.map(l => l.id) });
+  return out;
+}
+const hasQ = id => !LESSONS[id] || LESSONS[id].kind !== 'mcq' || (QUESTIONS[id] || []).length > 0 || S.community.some(c => c.unit === id);
+/* a chapter with no questions yet is skipped, so the next one with questions is still reachable */
+const unlocked = (sec, i) => i === 0 || !!(S.user.progress[sec.ids[i - 1]] || {}).done || (!hasQ(sec.ids[i - 1]) && unlocked(sec, i - 1));
+const OFFS = [0, 46, 72, 46, 0, -46, -72, -46];
+
+/* ---------------------------------------------------------------------
+   5. SCREENS
+   --------------------------------------------------------------------- */
+function render() {
+  document.body.className = S.subject === 'bio' ? 'bio' : '';
+  const app = $('#app');
+  if (!S.ready) { app.innerHTML = '<div class="loading">Loading…</div>'; return; }
+  if (S.screen === 'login') app.innerHTML = loginHTML();
+  else if (S.screen === 'main') app.innerHTML = mainHTML();
+  else if (S.screen === 'play') renderPlay();
+  else if (S.screen === 'mm') renderMM();
+  else if (S.screen === 'result') app.innerHTML = resultHTML();
+  window.scrollTo(0, 0);
+}
+function toast(msg, kind) { const d = document.createElement('div'); d.className = 'toast ' + (kind || ''); d.textContent = msg; $('#toasts').appendChild(d); setTimeout(() => d.remove(), 2800); }
+
+const RING = `<svg class="ring" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,6 88,28 88,72 50,94 12,72 12,28" fill="none" stroke="var(--accent)" stroke-width="7" stroke-linejoin="round"/><path d="M50 22 L74 36 M74 64 L50 78 M26 64 L26 36" stroke="var(--accent)" stroke-width="6" stroke-linecap="round"/></svg>`;
+
+function loginHTML() {
+  const L = S.login, head = `<div class="login">${RING}<h1>Bondly</h1>${progBarHTML()}<p class="tag">Biology and chemistry, one streak at a time.</p>`;
+  if (ONLINE && L.step === 'code') return head + `<p class="sub" style="margin:0 0 6px">We emailed a code to <b>${esc(L.email)}</b>. Enter it below. It can take a minute to arrive, so check your spam folder too.</p>
+    <label class="f" for="code">Code</label><input id="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="123456">
+    <div class="err" id="loginErr" role="alert"></div>
+    <button class="btn" id="loginBtn" data-act="login">Verify and sign in</button>
+    <div class="row" style="margin-top:12px"><button class="btn ghost" data-act="resend">Send a new code</button><button class="btn ghost" data-act="changeEmail">Change email</button></div></div>`;
+  if (ONLINE && L.step === 'name') return head + `<p class="sub" style="margin:0 0 6px">You are verified. Choose a display name for the leaderboard.</p>
+    <label class="f" for="name">Display name</label><input id="name" type="text" maxlength="20" autocomplete="nickname" placeholder="e.g. MoleMaster" value="${esc(L.name)}">
+    <div class="err" id="loginErr" role="alert"></div>
+    <button class="btn" id="loginBtn" data-act="login">Start learning</button></div>`;
+  return head + `<label class="f" for="email">Email</label>
+    <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="you@school.edu" value="${esc(L.email)}">
+    <label class="f" for="name">Display name <small>(new players: shown on the leaderboard)</small></label>
+    <input id="name" type="text" maxlength="20" autocomplete="nickname" placeholder="e.g. MoleMaster" value="${esc(L.name)}">
+    <div class="err" id="loginErr" role="alert"></div>
+    <button class="btn" id="loginBtn" data-act="login">${ONLINE ? 'Email me a code' : 'Save my progress'}</button>
+    <p class="fine">${ONLINE ? 'We email you a one-time code, so only you can open your progress. ' : ''}Your email is used only to find your saved progress and is never shown to other players. The leaderboard shows your display name, picture and score.</p>
+  </div>`;
+}
+
+function tabsHTML() {
+  const t = [['learn','📚','Learn'],['board','🏆','Leaderboard'],['bank','🗂️','Questions'],['reviews','⭐','Reviews'],['me','👤','Profile']];
+  return `<nav class="tabs"><div class="in">${t.map(x => `<button class="${S.tab === x[0] ? 'on' : ''}" data-act="tab" data-tab="${x[0]}"><span>${x[1]}</span>${x[2]}</button>`).join('')}</div></nav>`;
+}
+
+/* ---------- Reviews ----------
+   REVIEWS = the reviews shown to everyone, chosen by hand. Friends send theirs by email (FEEDBACK_EMAIL);
+   copy the ones you like into this list, e.g. { name: 'Aisha', stars: 5, text: 'Loved the streaks!' }. */
+const FEEDBACK_EMAIL = 'alaiskyong@gmail.com';
+const REVIEWS = [];
+const starsStr = n => '★'.repeat(n) + '☆'.repeat(5 - n);
+function rvRead() {
+  const n = (($('#rv-name') || {}).value || '').trim(), t = (($('#rv-text') || {}).value || '').trim();
+  const body = 'Rating: ' + (S.rv.stars ? starsStr(S.rv.stars) + ' (' + S.rv.stars + '/5)' : 'not given') + '\nName: ' + (n || 'Anonymous') + '\n\n' + t;
+  return { n, t, body };
+}
+function reviewsHTML() {
+  const list = REVIEWS.length
+    ? REVIEWS.map(r => `<div class="card rv"><div class="rvst" role="img" aria-label="${r.stars} out of 5 stars">${starsStr(r.stars)}</div><p>${esc(r.text)}</p><div class="rvby">${esc(r.name || 'A player')}</div></div>`).join('')
+    : `<div class="empty rvempty"><div style="font-size:34px">⭐</div><b>Share your feedback!</b><div>No reviews yet. Tell us what you think below.</div></div>`;
+  return `<h2 class="rvh">⭐ Reviews</h2>${list}
+    <h3 class="rvh2">Leave a review</h3>
+    <div class="card"><label class="f" for="rv-name" style="margin-top:0">Your name <small>(optional)</small></label><input id="rv-name" type="text" maxlength="40" placeholder="e.g. Aisha">
+      <label class="f">Your rating</label><div class="rvpick" role="group" aria-label="Rating">${[1, 2, 3, 4, 5].map(n => `<button type="button" data-act="rvStar" data-n="${n}" class="${S.rv.stars >= n ? 'on' : ''}" aria-label="${n} star${n > 1 ? 's' : ''}">★</button>`).join('')}</div>
+      <label class="f" for="rv-text">Your thoughts</label><textarea id="rv-text" maxlength="600" placeholder="What did you like? What should we improve?"></textarea>
+      <div style="margin-top:14px"><button class="btn" data-act="sendReview">Send review</button></div>
+      <div class="avrow" style="margin-top:10px"><button class="btn ghost" data-act="copyReview">Copy review text</button></div>
+      <p class="fine">Sending opens your email app with your review ready to go (or copy it and email it to ${FEEDBACK_EMAIL}). Hand-picked reviews are shown on this page.</p></div>
+    <h3 class="rvh2">Questions?</h3>
+    <div class="card"><p style="margin:0 0 12px">Have a question, an idea or something not working? Email us at <b>${FEEDBACK_EMAIL}</b>.</p>
+      <a class="btn" href="mailto:${FEEDBACK_EMAIL}?subject=${enc('Bondly enquiry')}" target="_blank" rel="noopener" style="text-decoration:none">✉️ Email us</a></div>`;
+}
+
+function mainHTML() {
+  const body0 = S.tab === 'learn' ? learnHTML() : S.tab === 'board' ? boardHTML() : S.tab === 'bank' ? bankHTML() : S.tab === 'reviews' ? reviewsHTML() : meHTML();
+  return `<div class="main">${progBarHTML()}${body0}</div>${tabsHTML()}${S.sheet ? sheetHTML() : ''}`;
+}
+
+function learnHTML() {
+  const sk = S.subject, si = S.sem[sk], sem = CUR[sk].sems[si], T = totals();
+  const path = sections(sk, si).map(sec => {
+    const head = sec.mm ? `<div class="mmhead"><h3>Mind map challenge</h3><p>Rebuild the propane reaction map. Fill in the missing reagents and compounds branch by branch, then take on the full-map boss round.</p></div>` : '';
+    const steps = sec.ids.map((id, i) => {
+      const L = LESSONS[id], p = S.user.progress[id], open = unlocked(sec, i), done = p && p.done;
+      const soon = !hasQ(id), state = !open ? 'locked' : soon ? 'soon' : done ? 'done' : 'current';
+      const st = done ? '★'.repeat(p.stars || 1) + '☆'.repeat(3 - (p.stars || 1)) : '';
+      return `<div class="step" style="--dx:${OFFS[i % OFFS.length]}px"><button class="hex ${state}" data-act="open" data-id="${id}" aria-label="${esc(L.title)}${open ? '' : ' (locked)'}"><span class="hb"></span><span class="hf">${open ? L.icon : '🔒'}</span></button><div class="sl">${esc(L.title)}</div>${soon ? '<div class="soonlbl">Coming soon</div>' : ''}${st ? `<div class="stars" aria-label="${p.stars} of 3 stars">${st}</div>` : ''}</div>`;
+    }).join('');
+    return head + `<div class="path">${steps}</div>`;
+  }).join('');
+  return `<div class="top">
+      <div class="seg" role="tablist"><button class="${sk === 'chem' ? 'on' : ''}" data-act="subject" data-s="chem">⚗️ Chemistry</button><button class="${sk === 'bio' ? 'on' : ''}" data-act="subject" data-s="bio">🌿 Biology</button></div>
+      <div class="chip total" title="Your leaderboard score">⭐ ${T.total}</div></div>
+    <div class="semtabs">${CUR[sk].sems.map((s, i) => `<button class="${si === i ? 'on' : ''}" data-act="sem" data-i="${i}">${esc(s.tab || 'Stage ' + (i + 1))}</button>`).join('')}</div>
+    <section class="sembanner"><div class="n">Stage ${si + 1} of ${CUR[sk].sems.length}</div><h2>${esc(sem.title)}</h2><p class="b">${esc(sem.blurb)}</p></section>
+    ${path}`;
+}
+
+function sheetHTML() {
+  const L = LESSONS[S.sheet], p = S.user.progress[S.sheet] || {};
+  let info;
+  if (L.kind === 'mcq') {
+    const core = (QUESTIONS[L.id] || []).length, com = S.community.filter(c => c.unit === L.id).length;
+    info = core + com === 0 ? 'Questions for this chapter are coming soon.' : `Up to ${Math.min(10, core + com)} questions${com ? `, including ${com} from the community` : ''}. Faster answers and longer streaks score more, and harder questions get a slower timer.`;
+  } else info = L.id === 'mm9' ? 'Ten random reactions from the whole map. Fill every gap.' : 'Each row is a reaction arrow, read left to right. Tap a ? to choose a slot, then pick the missing answer from the bank. ★ marks the hub compound.';
+  return `<div class="overlay" data-act="overlay"><div class="sheet" role="dialog" aria-label="${esc(L.title)}">
+    <div class="ic">${L.icon}</div><h3>${esc(L.title)}</h3><div class="sub">${esc(L.group)}</div>
+    <p class="sub" style="margin-bottom:0">${esc(info)}</p>
+    <div class="stats"><div class="stat"><b>${p.best || 0}</b><span>Best score</span></div><div class="stat"><b>${p.plays || 0}</b><span>Times played</span></div><div class="stat"><b>${p.bestStreak || 0}</b><span>Best streak</span></div></div>
+    <div class="row"><button class="btn ghost" data-act="closeSheet">Not now</button><button class="btn" data-act="start" data-id="${L.id}" ${L.kind === 'mcq' && !hasQ(L.id) ? 'disabled' : ''}>${p.done ? 'Play again' : 'Start'}</button></div></div></div>`;
+}
+
+function boardHTML() {
+  const f = S.boardFilter, pg = S.boardProg, me = S.user.pid, sc = r => scoreOf(r, pg, f);
+  const rows = S.board.map(r => r.pid === me ? { ...myRow(), ts: r.ts } : r);
+  const all = rows.filter(r => sc(r) > 0).sort((a, b) => sc(b) - sc(a) || (a.ts || 0) - (b.ts || 0));
+  const top = all.slice(0, 50);
+  const medal = i => i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1;
+  const myRank = rankOf(pg, f), outside = myRank && myRank > 50;
+  const items = top.map((r, i) => `<li class="${r.pid === me ? 'me' : ''}"><span class="rk">${medal(i)}</span>${avHTML(r.pid === me ? (S.user.avatar || S.user.thumb) : r.av, r.name, 'sm')}<span class="nm">${esc(String(r.name || 'Player').slice(0, 20))}${r.pid === me ? ' (you)' : ''}</span><span class="sc">${sc(r)}</span></li>`).join('');
+  const note = (DB.mode === 'cloud' || DB.mode === 'online') ? 'Shared with every player. Only display names, pictures and scores are public.' : 'This board only shows players on this device. Fill in CONFIG at the top of the code to connect Supabase and make it global.';
+  const pill = (list, cur, act, key) => list.map(x => `<button class="${cur === x[0] ? 'on' : ''}" data-act="${act}" data-${key}="${x[0]}">${x[1]}</button>`).join('');
+  const where = pg === 'all' ? 'Overall adds your STPM and A-Level scores together.' : PROGS[pg] + ' section only.';
+  return `<h2 class="pg">Leaderboard</h2><p class="sub">Score = best run on each lesson: speed × streak × accuracy. ${where}</p>
+    <div class="pills">${pill([['all', 'Overall'], ['stpm', 'STPM'], ['alevel', 'A-Level']], pg, 'boardProg', 'p')}<button data-act="refreshBoard" style="margin-left:auto">Refresh</button></div>
+    <div class="pills" style="margin-top:8px">${pill([['total', 'All subjects'], ['chem', 'Chemistry'], ['bio', 'Biology']], f, 'boardFilter', 'f')}</div>
+    ${items ? `<ul class="lb">${items}</ul>` : `<div class="empty">No scores yet${pg === 'all' ? '' : ' in ' + PROGS[pg]}. Finish a lesson to put the first name on the board.</div>`}
+    ${outside ? `<ul class="lb" style="margin-top:8px"><li class="me"><span class="rk">${myRank}</span>${avHTML(S.user.avatar || S.user.thumb, S.user.name, 'sm')}<span class="nm">${esc(S.user.name)} (you)</span><span class="sc">${sc(myRow())}</span></li></ul>` : ''}
+    <p class="fine">${note}</p>`;
+}
+
+function meHTML() {
+  const T = totals(), P = Object.values(S.user.progress || {});
+  const done = P.filter(p => p.done).length, bs = Math.max(0, ...P.map(p => p.bestStreak || 0));
+  const A = allTotals(), r = rankOf(PROG, 'total'), ro = rankOf('all', 'total'), pl = PROGS[PROG];
+  return `<div class="who"><button class="avbtn" data-act="pickAvatar" aria-label="Change profile picture">${avHTML(S.user.avatar, S.user.name)}<span class="cam" aria-hidden="true">📷</span></button><div><h2 class="pg" style="margin:0">${esc(S.user.name)}</h2><div class="sub">${esc(S.user.email)}</div><div class="sub">Your animal: <button type="button" class="animalbtn" data-act="animalFact" aria-label="Show a random fact about the ${esc(animalFor(S.user.name)[0])}"><b>${esc(animalFor(S.user.name)[0])}</b> 💡 tap for a fact</button></div></div></div>
+    <input type="file" id="avfile" accept="image/*" hidden>
+    <div class="avrow"><button class="btn ghost" data-act="pickAvatar">${S.user.avatar ? 'Change photo' : 'Add a photo'}</button>${S.user.avatar ? '<button class="btn ghost" data-act="removeAvatar">Remove</button>' : ''}</div>
+    <div class="grid2"><div class="stat"><b>${T.total}</b><span>${pl} score</span></div><div class="stat"><b>${r ? '#' + r : '–'}</b><span>${pl} rank</span></div>
+      <div class="stat"><b>${T.chem}</b><span>Chemistry score</span></div><div class="stat"><b>${T.bio}</b><span>Biology score</span></div>
+      <div class="stat"><b>${done}</b><span>Lessons completed</span></div><div class="stat"><b>${bs}</b><span>Best streak</span></div><div class="stat"><b>${A.stpm.total + A.alevel.total}</b><span>Overall score</span></div><div class="stat"><b>${ro ? '#' + ro : '–'}</b><span>Overall rank</span></div></div>
+    <button class="btn ghost" data-act="signout">Sign out</button>
+    <p class="fine">Progress is saved automatically to this email. Sign in with the same email to continue. Profile pictures are cropped to a square and shrunk before saving.</p>`;
+}
+
+/* ---- lesson (multiple choice) ---- */
+function startMCQ(id) {
+  const core = (QUESTIONS[id] || []).map(q => ({ q: q[0], a: q[1], opts: [q[1], q[2], q[3], q[4]], exp: q[5], by: '', img: q[6] || '', alt: q[7] || '', diff: q[8] || '', why: q[9] || null }));
+  const com = S.community.filter(c => c.unit === id).map(c => ({ q: c.q, a: c.opts[c.c], opts: c.opts, exp: c.exp || '', by: c.by || 'a player', img: c.img || '', alt: c.alt || '' }));
+  const qs = shuffle([...core, ...com]).slice(0, 10).map(x => { const lv = levelOf(x); return { ...x, opts: shuffle(x.opts), level: lv, limit: TIME_BY_LEVEL[lv] }; });
+  G = { kind: 'mcq', id, qs, i: 0, correct: 0, answered: 0, streak: 0, bestStreak: 0, score: 0, t0: 0, locked: false, started: Date.now() };
+  S.sheet = null; S.screen = 'play'; render();
+}
+function liveHTML() { return `<div class="live"><span id="lstreak">🔥 ${G.streak}</span><span id="lscore">⭐ ${G.score}</span></div>`; }
+function renderPlay() {
+  const q = G.qs[G.i], pct = Math.round(G.answered / G.qs.length * 100);
+  $('#app').innerHTML = `<div class="play">
+    <div class="ptop"><button class="x" data-act="quit" aria-label="Leave lesson">✕</button><div class="spectrum" role="progressbar" aria-valuenow="${pct}"><div class="cover" id="cover" style="width:${100 - pct}%"></div></div>${liveHTML()}</div>
+    <div class="tbar" aria-hidden="true"><i style="animation-duration:${q.limit}s"></i></div>
+    <div class="qtag">Question ${G.i + 1} of ${G.qs.length}<span class="lvl l${q.level}">${LEVEL_NAME[q.level]} · ${q.limit}s</span>${q.by ? ` · from ${esc(q.by)}` : ''}</div>
+    <div class="qtext">${esc(q.q)}</div>
+    ${figSrc(q.img) ? `<img class="q-figure" src="${figSrc(q.img)}" alt="${esc(q.alt)}">` : ''}
+    <div class="opts">${q.opts.map((o, i) => `<button class="opt" data-act="pick" data-i="${i}"><span class="k">${'ABCD'[i]}</span><span>${esc(o)}</span></button>`).join('')}</div>
+    <div class="fb" id="fb" hidden></div></div>`;
+  G.t0 = performance.now(); G.locked = false;
+}
+function pick(idx) {
+  if (!G || G.kind !== 'mcq' || G.locked) return;
+  G.locked = true;
+  const q = G.qs[G.i], t = (performance.now() - G.t0) / 1000, ok = q.opts[idx] === q.a;
+  G.answered++;
+  const bar = document.querySelector('.tbar i'); if (bar) bar.style.animationPlayState = 'paused';
+  document.querySelectorAll('.opt').forEach((b, i) => { b.disabled = true; if (q.opts[i] === q.a) b.classList.add('ok'); else if (i === idx) b.classList.add('bad'); else b.classList.add('dim'); });
+  let head, calc = '';
+  if (ok) {
+    G.correct++; G.streak++; G.bestStreak = Math.max(G.bestStreak, G.streak);
+    const sc = calcPoints(t, q.limit, G.streak, G.correct, G.answered); G.score += sc.pts;
+    head = `Correct, +${sc.pts}`; calc = `⚡ speed ${sc.speed} × 🔥 streak ${sc.streak} × 🎯 accuracy ${sc.acc.toFixed(2)}`;
+  } else { G.streak = 0; head = 'Not quite'; calc = 'Streak reset. No points this time.'; }
+  const last = G.i === G.qs.length - 1;
+  const fb = $('#fb'); fb.hidden = false; fb.className = 'fb ' + (ok ? 'ok' : 'bad');
+  fb.innerHTML = `<h3>${head}</h3><div class="calc">${calc}</div>${ok ? '' : whyWrong(q, idx)}<div class="exp">${ok ? '' : `Answer: ${esc(q.a)}. `}${esc(q.exp)}</div><button class="btn ${ok ? 'ok' : 'bad'}" data-act="next" id="nextBtn">${last ? 'Finish lesson' : 'Continue'}</button>`;
+  $('#lstreak').textContent = '🔥 ' + G.streak; $('#lscore').textContent = '⭐ ' + G.score;
+  $('#cover').style.width = (100 - Math.round(G.answered / G.qs.length * 100)) + '%';
+  $('#nextBtn').focus({ preventScroll: true });
+}
+function nextQ() { if (!G || !G.locked) return; G.i++; if (G.i >= G.qs.length) finishRun(); else renderPlay(); }
+
+/* ---- mind map challenge ---- */
+function buildMM(id) {
+  const L = MM_LEVELS.find(l => l.id === id);
+  const eids = L.boss ? shuffle(Object.keys(ME)).slice(0, 10) : L.edges;
+  const rows = eids.map(eid => {
+    const [A, B, R] = ME[eid];
+    const anchor = (L.center && B === L.center && A !== L.center) ? 'B' : 'A';
+    return { eid, A, B, R, anchor, nodeKey: anchor === 'A' ? B : A, blank: Math.random() < 0.5 ? 'reagent' : 'node', done: false };
+  });
+  if (rows.every(r => r.blank === rows[0].blank)) rows[0].blank = rows[0].blank === 'node' ? 'reagent' : 'node';
+  const ans = r => r.blank === 'reagent' ? r.R : MN[r.nodeKey][0];
+  const chips = rows.map((r, i) => ({ id: 'c' + i, type: r.blank, text: ans(r), used: false }));
+  const usedR = new Set(rows.map(r => r.R)), usedN = new Set(rows.flatMap(r => [r.A, r.B]));
+  const rPool = shuffle([...new Set(Object.values(ME).map(e => e[2]))].filter(t => !usedR.has(t)));
+  const nPool = shuffle(Object.keys(MN).filter(k => !usedN.has(k))).map(k => MN[k][0]);
+  if (rows.some(r => r.blank === 'reagent')) rPool.slice(0, 2).forEach((t, i) => chips.push({ id: 'dr' + i, type: 'reagent', text: t, used: false }));
+  if (rows.some(r => r.blank === 'node')) nPool.slice(0, 2).forEach((t, i) => chips.push({ id: 'dn' + i, type: 'node', text: t, used: false }));
+  return { kind: 'mm', id, center: L.center, rows, chips: shuffle(chips), sel: 0, correct: 0, answered: 0, streak: 0, bestStreak: 0, score: 0, t0: performance.now(), started: Date.now(), msg: null, shake: null, flash: null, ans };
+}
+function startMM(id) { G = buildMM(id); S.sheet = null; S.screen = 'mm'; render(); }
+function mmNode(key, o) {
+  const [name, f] = MN[key];
+  if (o.blank && !o.done) return `<button class="mn blank ${o.sel ? 'sel' : ''}" data-act="mmsel" data-row="${o.idx}" aria-label="Missing compound">?<small>compound</small></button>`;
+  return `<div class="mn ${o.done ? 'filled' : ''} ${key === G.center ? 'hub' : ''}"><b>${key === G.center ? '★ ' : ''}${esc(name)}</b><code>${esc(f)}</code></div>`;
+}
+function mmRow(r, i) {
+  const sel = G.sel === i && !r.done;
+  const a = (r.blank === 'node' && r.anchor === 'B') ? mmNode(r.A, { blank: true, sel, done: r.done, idx: i }) : mmNode(r.A, {});
+  const b = (r.blank === 'node' && r.anchor === 'A') ? mmNode(r.B, { blank: true, sel, done: r.done, idx: i }) : mmNode(r.B, {});
+  const re = r.blank === 'reagent'
+    ? (r.done ? `<span class="pill filled">${esc(r.R)}</span>` : `<button class="pill blank ${sel ? 'sel' : ''}" data-act="mmsel" data-row="${i}" aria-label="Missing reagent">reagent or conditions ?</button>`)
+    : `<span class="pill">${esc(r.R)}</span>`;
+  return `<div class="mmrow ${r.done ? 'ok' : ''} ${G.flash === i ? 'flash' : ''}">${a}<span class="arr" aria-hidden="true">▶</span>${b}<div class="mr">${re}</div></div>`;
+}
+function renderMM() {
+  const L = LESSONS[G.id], done = G.rows.filter(r => r.done).length, pct = Math.round(done / G.rows.length * 100);
+  const strip = G.msg ? `<div class="mmstrip ${G.msg.ok === true ? 'ok' : G.msg.ok === false ? 'bad' : ''}">${G.msg.html}</div>` : '<div class="mmstrip"></div>';
+  const chips = G.chips.filter(c => !c.used).map(c => `<button class="chip ${c.type} ${G.shake === c.id ? 'shake' : ''}" data-act="mmchip" data-chip="${c.id}">${esc(c.text)}</button>`).join('');
+  const html = `<div class="mm"><div class="mmtop">
+      <div class="ptop"><button class="x" data-act="quit" aria-label="Leave challenge">✕</button><div class="spectrum" role="progressbar" aria-valuenow="${pct}"><div class="cover" style="width:${100 - pct}%"></div></div>${liveHTML()}</div>
+      <h2 class="mmtitle disp">${L.icon} ${esc(L.title)}</h2>
+      <div class="mmhelp">Arrows read left to right. Tap a ? to pick a slot, then tap the answer below.</div>${strip}</div>
+    <div class="mmrows">${G.rows.map(mmRow).join('')}</div>
+    <div class="chipbar"><div class="t">Answer bank (${G.chips.filter(c => !c.used && !c.id.startsWith('d')).length} to place, plus a few decoys)</div><div class="chips">${chips}</div></div></div>`;
+  G.shake = null; G.flash = null;
+  $('#app').innerHTML = html;
+}
+function mmPlace(chipId) {
+  const ch = G.chips.find(c => c.id === chipId); if (!ch || ch.used) return;
+  let r = G.rows[G.sel]; if (!r || r.done) { G.sel = G.rows.findIndex(x => !x.done); r = G.rows[G.sel]; }
+  if (ch.type !== r.blank) { G.msg = { ok: null, html: r.blank === 'reagent' ? 'This slot needs a reagent or conditions.' : 'This slot needs a compound.' }; G.shake = ch.id; return renderMM(); }
+  const t = (performance.now() - G.t0) / 1000; G.t0 = performance.now(); G.answered++;
+  if (ch.text === G.ans(r)) {
+    G.correct++; G.streak++; G.bestStreak = Math.max(G.bestStreak, G.streak);
+    const sc = calcPoints(t, TIME_LIMIT_MM, G.streak, G.correct, G.answered); G.score += sc.pts;
+    r.done = true; ch.used = true;
+    G.msg = { ok: true, html: `+${sc.pts} &nbsp; ⚡${sc.speed} × 🔥${sc.streak} × 🎯${sc.acc.toFixed(2)}` };
+    G.sel = G.rows.findIndex(x => !x.done);
+    if (G.sel === -1) { G.sel = 0; renderMM(); return setTimeout(finishRun, 700); }
+  } else {
+    G.streak = 0; G.shake = ch.id; G.flash = G.sel; G.msg = { ok: false, html: 'Not that one. Streak reset, try another.' };
+  }
+  renderMM();
+}
+
+/* ---- finish and results ---- */
+async function finishRun() {
+  const acc = G.answered ? G.correct / G.answered : 0, stars = acc >= .9 ? 3 : acc >= .7 ? 2 : 1;
+  const prev = S.user.progress[G.id] || { best: 0, plays: 0 };
+  const isBest = G.score > (prev.best || 0);
+  S.user.progress[G.id] = { best: Math.max(prev.best || 0, G.score), stars: Math.max(prev.stars || 0, stars), bestStreak: Math.max(prev.bestStreak || 0, G.bestStreak), done: true, plays: (prev.plays || 0) + 1 };
+  const L = LESSONS[G.id]; S.subject = L.subject; S.sem[L.subject] = L.sem; S.tab = 'learn';
+  S.result = { id: G.id, score: G.score, acc, streak: G.bestStreak, time: Math.round((Date.now() - G.started) / 1000), stars, isBest, first: !prev.plays, rank: null };
+  G = null; S.screen = 'result'; render();
+  await saveUser(); await pushScore(); await loadBoard();
+  if (S.screen === 'result' && S.result) { S.result.rank = rankOf(PROG, 'total'); render(); }
+}
+function resultHTML() {
+  const R = S.result, L = LESSONS[R.id];
+  const head = R.stars === 3 ? 'Flawless' : R.stars === 2 ? 'Solid run' : 'Lesson complete';
+  return `<div class="result"><div class="st" aria-label="${R.stars} of 3 stars">${'★'.repeat(R.stars)}${'☆'.repeat(3 - R.stars)}</div>
+    <h2>${head}</h2><div class="lab">${esc(L.title)}</div>
+    <div class="big">${R.score}</div><div class="lab">points this run</div>
+    ${R.isBest && !R.first ? '<span class="badge">New personal best</span>' : ''}
+    <div class="stats"><div class="stat"><b>${Math.round(R.acc * 100)}%</b><span>Accuracy</span></div><div class="stat"><b>${R.streak}</b><span>Best streak</span></div><div class="stat"><b>${R.time}s</b><span>Time</span></div></div>
+    ${R.rank ? `<p class="sub" style="margin-bottom:16px">You are #${R.rank} in ${PROGS[PROG]} with ${totals().total} points.</p>` : '<p class="sub" style="margin-bottom:16px">Updating leaderboard…</p>'}
+    <div class="row"><button class="btn ghost" data-act="again" data-id="${R.id}">Play again</button><button class="btn" data-act="home">Continue</button></div></div>`;
+}
+function confirmQuit() {
+  const d = document.createElement('div'); d.className = 'confirm'; d.id = 'confirm';
+  d.innerHTML = `<div class="box"><h3>Leave this run?</h3><p>Your points from this run will not be saved.</p><div class="row"><button class="btn ghost" data-act="stay">Keep going</button><button class="btn bad" data-act="leave">Leave</button></div></div>`;
+  document.body.appendChild(d);
+}
+
+/* ---------------------------------------------------------------------
+   6. QUESTION BANK (add, bulk upload, browse)
+   --------------------------------------------------------------------- */
+function unitOptions(sel) {
+  return ['chem', 'bio'].map(sk => CUR[sk].sems.map((s, si) => `<optgroup label="${CUR[sk].name}, stage ${si + 1}: ${esc(s.title)}">${s.units.map(u => `<option value="${u[0]}" ${sel === u[0] ? 'selected' : ''}>${esc(u[1])}</option>`).join('')}</optgroup>`).join('')).join('');
+}
+function bankHTML() {
+  const tabs = [['add', 'Add one'], ['bulk', 'Upload file'], ['browse', 'Browse']];
+  const t = S.bankTab;
+  let body = '';
+  if (t === 'add') body = `<div class="card"><label class="f" for="f-unit" style="margin-top:0">Where does it belong?</label><select id="f-unit">${unitOptions(S.bankUnit)}</select>
+      <label class="f" for="f-q">Question</label><textarea id="f-q" maxlength="300" placeholder="Write the question"></textarea>
+      <label class="f" for="f-fig">Figure or graph <small>(optional, PNG, JPG or WebP, max 1 MB)</small></label><input id="f-fig" type="file" accept="image/png,image/jpeg,image/webp" style="width:100%">
+      <label class="f" for="f-alt">Describe the figure <small>(required if you add one)</small></label><input id="f-alt" type="text" maxlength="200" placeholder="e.g. Line graph: rate peaks at 37 °C then falls">
+      <label class="f">Options <small>(select the correct one)</small></label>
+      ${[0, 1, 2, 3].map(i => `<div class="optrow"><input type="radio" name="correct" value="${i}" ${i === 0 ? 'checked' : ''} aria-label="Option ${'ABCD'[i]} is correct"><input type="text" id="f-o${i}" maxlength="120" placeholder="Option ${'ABCD'[i]}"></div>`).join('')}
+      <label class="f" for="f-exp">Explanation <small>(optional, shown after answering)</small></label><textarea id="f-exp" maxlength="300" style="min-height:64px"></textarea>
+      <div style="margin-top:14px"><button class="btn" data-act="submitQ">Add to question bank</button></div></div>
+      <p class="fine">Approved instantly and visible to every player in the lessons for that unit. You can delete your own questions under Browse.</p>`;
+  else if (t === 'bulk') {
+    const b = S.bulk;
+    body = `<div class="card"><label class="f" for="b-unit" style="margin-top:0">Add all questions to</label><select id="b-unit">${unitOptions(S.bankUnit)}</select>
+      <label class="f" for="bulkfile">CSV or JSON file <small>(up to 100 questions, 300 KB)</small></label><input id="bulkfile" type="file" accept=".csv,.json,text/csv,application/json" style="width:100%">
+      ${b ? `<div style="margin-top:12px"><b>${esc(b.name)}</b>: ${b.valid.length} ready${b.errors.length ? `, ${b.errors.length} skipped` : ''}.${b.errors.length ? `<ul class="errlist">${b.errors.slice(0, 6).map(e => `<li>${esc(e)}</li>`).join('')}</ul>` : ''}</div>${b.valid.length ? `<div style="margin-top:10px"><button class="btn" data-act="uploadBulk">Upload ${b.valid.length} question${b.valid.length > 1 ? 's' : ''}</button></div>` : ''}` : ''}</div>
+      <div class="card"><h3>File format</h3><p class="sub">CSV columns: question, A, B, C, D, answer (A to D), explanation. JSON: a list of objects with question, options (4 items), answer ("A" to "D" or the exact option text) and explanation.</p>
+      <div style="margin:10px 0"><button class="btn small ghost" data-act="template">Download CSV template</button></div>
+      <details><summary>See an example</summary><pre class="code">question,A,B,C,D,answer,explanation
+"Which organelle makes ATP?","Mitochondrion","Ribosome","Golgi body","Nucleus","A","Mitochondria carry out aerobic respiration."</pre></details></div>`;
+  } else {
+    const list = S.community.filter(c => S.browseUnit === 'all' || c.unit === S.browseUnit).slice().reverse().slice(0, 100);
+    body = `<label class="f" for="br-unit" style="margin-top:0">Show questions for</label><select id="br-unit"><option value="all">All units (${S.community.length})</option>${unitOptions(S.browseUnit)}</select><div style="height:12px"></div>
+      ${list.length ? list.map(c => `<div class="card q-item"><div class="meta">${esc(LESSONS[c.unit].title)} · by ${esc(String(c.by || 'a player').slice(0, 20))}</div><div class="qq">${esc(String(c.q).slice(0, 300))}</div>${figSrc(c.img) ? `<img class="q-figure" style="max-height:140px;margin:6px 0" src="${figSrc(c.img)}" alt="${esc(c.alt)}">` : ''}<ul>${c.opts.map((o, i) => `<li class="${i === c.c ? 'c' : ''}">${esc(String(o).slice(0, 120))}</li>`).join('')}</ul>${c.pid === S.user.pid ? `<div style="margin-top:10px"><button class="btn small ghost" data-act="delq" data-id="${esc(c.id)}">Delete</button></div>` : ''}</div>`).join('') : '<div class="empty">No community questions here yet. Add the first one.</div>'}`;
+  }
+  return `<h2 class="pg">Question bank</h2><p class="sub">${S.community.length} community question${S.community.length === 1 ? '' : 's'} mixed into lessons.</p>
+    <div class="pills">${tabs.map(x => `<button class="${t === x[0] ? 'on' : ''}" data-act="bankTab" data-t="${x[0]}">${x[1]}</button>`).join('')}</div>${body}`;
+}
+function validateQ({ q, opts, exp }) {
+  if (q.length < 10) return 'The question needs at least 10 characters.';
+  if (q.length > 300) return 'The question is over 300 characters.';
+  if (!Array.isArray(opts) || opts.length !== 4) return 'Each question needs exactly 4 options.';
+  if (opts.some(o => !o)) return 'Fill in all four options.';
+  if (opts.some(o => o.length > 120)) return 'Options are limited to 120 characters.';
+  if (new Set(opts.map(o => o.toLowerCase())).size !== 4) return 'The four options must be different.';
+  if ((exp || '').length > 300) return 'The explanation is over 300 characters.';
+  return '';
+}
+const norm = s => String(s).toLowerCase().replace(/\s+/g, ' ').trim();
+function makeRec(unit, q, opts, c, exp, img, alt) {
+  const r = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), unit, q, opts, c, exp: exp || '', by: S.user.name, pid: S.user.pid, ts: Date.now() };
+  if (img) { r.img = img; r.alt = alt; }
+  return r;
+}
+const isDupe = (unit, q) => S.community.some(c => c.unit === unit && norm(c.q) === norm(q)) || (QUESTIONS[unit] || []).some(x => norm(x[0]) === norm(q));
+async function saveRecs(recs) {
+  let ok = 0;
+  for (let i = 0; i < recs.length; i += 10) {
+    const res = await Promise.all(recs.slice(i, i + 10).map(r => DB.set('cq:' + r.id, r, true)));
+    res.forEach((v, j) => { if (v) { S.community.push(recs[i + j]); ok++; } });
+  }
+  return ok;
+}
+async function submitQ() {
+  const unit = $('#f-unit').value, q = $('#f-q').value.trim(), opts = [0, 1, 2, 3].map(i => $('#f-o' + i).value.trim());
+  const c = +((document.querySelector('input[name=correct]:checked') || { value: 0 }).value), exp = $('#f-exp').value.trim();
+  const err = validateQ({ q, opts, exp }); if (err) return toast(err, 'bad');
+  if (isDupe(unit, q)) return toast('That question is already in this unit.', 'bad');
+  S.bankUnit = unit;
+  const file = $('#f-fig').files[0], alt = $('#f-alt').value.trim().slice(0, 200);
+  if (file && alt.length < 5) return toast('Please describe the figure (at least 5 characters).', 'bad');
+  let img = '';
+  if (file) { try { img = await uploadFigure(file); } catch (e) { return toast(e.message, 'bad'); } }
+  const n = await saveRecs([makeRec(unit, q, opts, c, exp, img, alt)]);
+  if (n) { toast('Question added to the bank.', 'ok'); render(); } else toast('Could not save. Try again.', 'bad');
+}
+function parseCSV(text) {
+  const rows = []; let row = [], cell = '', quoted = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (quoted) { if (c === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else quoted = false; } else cell += c; }
+    else if (c === '"') quoted = true;
+    else if (c === ',') { row.push(cell); cell = ''; }
+    else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(cell); cell = ''; if (row.some(x => x.trim() !== '')) rows.push(row); row = []; }
+    else cell += c;
+  }
+  row.push(cell); if (row.some(x => x.trim() !== '')) rows.push(row);
+  return rows;
+}
+function toIndex(a, opts) {
+  const s = String(a ?? '').trim();
+  if (/^[A-D]$/i.test(s)) return s.toUpperCase().charCodeAt(0) - 65;
+  if (/^[1-4]$/.test(s)) return +s - 1;
+  return opts.findIndex(o => o.toLowerCase() === s.toLowerCase());
+}
+async function handleFile(file) {
+  if (!file) return;
+  if (file.size > 300000) return toast('File is too large (max 300 KB).', 'bad');
+  const text = (await file.text()).replace(/^\uFEFF/, ''); let rows = [];
+  try {
+    const tr = text.trim();
+    if (/\.json$/i.test(file.name) || tr.startsWith('[') || tr.startsWith('{')) {
+      let data = JSON.parse(tr); if (!Array.isArray(data)) data = data.questions || [];
+      rows = data.map(o => ({ q: o.question ?? o.q, opts: o.options ?? o.opts, ans: o.answer ?? o.correct, exp: o.explanation ?? o.exp ?? '' }));
+    } else {
+      const t = parseCSV(text); if (t.length && /question/i.test(t[0][0])) t.shift();
+      rows = t.map(r => ({ q: r[0], opts: [r[1], r[2], r[3], r[4]], ans: r[5], exp: r[6] || '' }));
+    }
+  } catch (e) { return toast('Could not read that file. Check the format.', 'bad'); }
+  const valid = [], errors = [];
+  rows.slice(0, 100).forEach((r, i) => {
+    const q = String(r.q ?? '').trim(), exp = String(r.exp ?? '').trim(), opts = (Array.isArray(r.opts) ? r.opts : []).map(x => String(x ?? '').trim());
+    const err = validateQ({ q, opts, exp }), c = err ? -1 : toIndex(r.ans, opts);
+    if (err) errors.push(`Row ${i + 1}: ${err}`); else if (c < 0) errors.push(`Row ${i + 1}: answer must be A, B, C or D.`); else valid.push({ q, opts, c, exp });
+  });
+  if (rows.length > 100) errors.push('Only the first 100 rows are used.');
+  S.bulk = { name: file.name, valid, errors }; render();
+}
+async function uploadBulk() {
+  if (!S.bulk) return;
+  const unit = S.bankUnit, seen = new Set(), recs = [];
+  for (const v of S.bulk.valid) { const k = norm(v.q); if (seen.has(k) || isDupe(unit, v.q)) continue; seen.add(k); recs.push(makeRec(unit, v.q, v.opts, v.c, v.exp)); }
+  const skipped = S.bulk.valid.length - recs.length;
+  const n = await saveRecs(recs); S.bulk = null;
+  toast(`${n} question${n === 1 ? '' : 's'} added${skipped ? `, ${skipped} duplicate${skipped > 1 ? 's' : ''} skipped` : ''}.`, n ? 'ok' : 'bad'); render();
+}
+function downloadTemplate() {
+  const csv = 'question,A,B,C,D,answer,explanation\n"Which organelle makes ATP?","Mitochondrion","Ribosome","Golgi body","Nucleus","A","Mitochondria carry out aerobic respiration."\n';
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'bondly-question-template.csv';
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+/* ---------------------------------------------------------------------
+   7. EVENTS AND START-UP
+   --------------------------------------------------------------------- */
+async function enterApp(name) {
+  const uid = Auth.s.user.id, email = Auth.s.user.email;
+  let u = await DB.get('user:' + uid, false);
+  if (!u) {
+    if (!name || name.length < 2) { S.login.step = 'name'; render(); return; }
+    u = { id: uid, email, name, pid: uid, progress: {}, created: Date.now() };
+  } else { if (name && name.length >= 2) u.name = name; u.pid = uid; u.email = email; }
+  S.user = u; await saveUser();
+  await Promise.all([loadBoard(), loadCommunity()]); await pushScore();
+  S.screen = 'main'; S.tab = 'learn'; render();
+}
+async function onlineLogin() {
+  const L = S.login, err = m => { const e = $('#loginErr'); if (e) e.textContent = m; }, btn = $('#loginBtn');
+  const busy = (on, label) => { if (btn) { btn.disabled = on; if (label) btn.textContent = label; } };
+  const idle = btn ? btn.textContent : '';
+  try {
+    err('');
+    if (L.step === 'email') {
+      const email = $('#email').value.trim().toLowerCase(), name = $('#name').value.trim().slice(0, 20);
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return err('Enter a valid email address.');
+      busy(true, 'Sending…'); await Auth.sendCode(email);
+      L.email = email; L.name = name; L.step = 'code'; render();
+    } else if (L.step === 'code') {
+      const code = $('#code').value.replace(/\s/g, '');
+      if (!/^\d{6,10}$/.test(code)) return err('Enter the code from your email.');
+      busy(true, 'Checking…'); await Auth.verify(L.email, code); await enterApp(L.name);
+    } else {
+      const name = $('#name').value.trim().slice(0, 20);
+      if (name.length < 2) return err('Choose a display name of at least 2 characters.');
+      L.name = name; busy(true, 'Saving…'); await enterApp(name);
+    }
+  } catch (e) { console.error('Bondly sign-in error', e); err(friendly(e)); busy(false, idle); }
+}
+async function doLogin() {
+  if (ONLINE) return onlineLogin();
+  const err = m => { $('#loginErr').textContent = m; };
+  const email = $('#email').value.trim().toLowerCase(), name = $('#name').value.trim().slice(0, 20);
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return err('Enter a valid email address.');
+  const btn = $('#loginBtn'); btn.disabled = true; btn.textContent = 'Signing in…'; err('');
+  const id = idOf(email); let u = await DB.get('user:' + id, false);
+  if (!u) {
+    if (name.length < 2) { btn.disabled = false; btn.textContent = 'Save my progress'; return err('New here? Choose a display name of at least 2 characters.'); }
+    u = { id, email, name, pid: await hashId(email), progress: {}, created: Date.now() };
+  } else { if (name.length >= 2) u.name = name; if (!u.pid) u.pid = await hashId(email); }
+  S.user = u; await saveUser(); await DB.set('session', { id }, false);
+  await Promise.all([loadBoard(), loadCommunity()]);
+  await pushScore();
+  S.screen = 'main'; S.tab = 'learn'; render();
+}
+
+const ACT = {
+  login: doLogin,
+  tab: el => { S.tab = el.dataset.tab; S.sheet = null; render(); if (S.tab === 'board') refreshBoard(); if (S.tab === 'bank') loadCommunity().then(() => { if (S.screen === 'main' && S.tab === 'bank' && S.bankTab === 'browse') render(); }); },
+  animalFact: () => showAnimalFact(),
+  factAgain: () => showAnimalFact(),
+  factClose: () => { const m = document.getElementById('factModal'); if (m) m.classList.remove('on'); },
+  rvStar: el => { S.rv.stars = +el.dataset.n; document.querySelectorAll('.rvpick button').forEach(b => b.classList.toggle('on', +b.dataset.n <= S.rv.stars)); },
+  sendReview: () => {
+    const r = rvRead();
+    if (!S.rv.stars && !r.t) { toast('Add a star rating or a few words first.', 'bad'); return; }
+    const a = document.createElement('a');
+    a.href = 'mailto:' + FEEDBACK_EMAIL + '?subject=' + enc('Bondly review') + '&body=' + enc(r.body); a.target = '_blank'; a.rel = 'noopener';
+    document.body.appendChild(a); a.click(); a.remove();
+    toast('Opening your email app. Press send to share it. Thank you!', 'ok');
+  },
+  copyReview: async () => {
+    const r = rvRead();
+    if (!S.rv.stars && !r.t) { toast('Add a star rating or a few words first.', 'bad'); return; }
+    try { await navigator.clipboard.writeText(r.body); toast('Copied. Paste it into an email to ' + FEEDBACK_EMAIL, 'ok'); }
+    catch (e) { toast('Could not copy. Please select the text and copy it.', 'bad'); }
+  },
+  subject: el => { S.subject = el.dataset.s; render(); },
+  sem: el => { S.sem[S.subject] = +el.dataset.i; render(); },
+  open: el => {
+    const id = el.dataset.id, L = LESSONS[id], sec = sections(L.subject, L.sem).find(s => s.ids.includes(id)), i = sec.ids.indexOf(id);
+    if (!unlocked(sec, i)) return toast('Finish the previous step to unlock this one.', 'bad');
+    S.sheet = id; render();
+  },
+  overlay: (el, e) => { if (e.target === el) { S.sheet = null; render(); } },
+  closeSheet: () => { S.sheet = null; render(); },
+  start: el => { const id = el.dataset.id; LESSONS[id].kind === 'mm' ? startMM(id) : startMCQ(id); },
+  again: el => { const id = el.dataset.id; S.result = null; LESSONS[id].kind === 'mm' ? startMM(id) : startMCQ(id); },
+  home: () => { S.result = null; S.screen = 'main'; S.tab = 'learn'; render(); },
+  pick: el => pick(+el.dataset.i),
+  next: nextQ,
+  quit: confirmQuit,
+  stay: () => { const c = $('#confirm'); if (c) c.remove(); },
+  leave: () => { const c = $('#confirm'); if (c) c.remove(); G = null; S.screen = 'main'; render(); },
+  mmsel: el => { const i = +el.dataset.row; if (G && G.rows[i] && !G.rows[i].done) { G.sel = i; G.msg = null; renderMM(); } },
+  mmchip: el => mmPlace(el.dataset.chip),
+  boardFilter: el => { S.boardFilter = el.dataset.f; render(); },
+  boardProg: el => { S.boardProg = el.dataset.p; render(); },
+  refreshBoard: () => refreshBoard(true),
+  bankTab: el => { S.bankTab = el.dataset.t; S.bulk = null; render(); },
+  submitQ, uploadBulk, template: downloadTemplate,
+  delq: async el => {
+    const id = el.dataset.id, rec = S.community.find(c => c.id === id);
+    if (!rec || rec.pid !== S.user.pid) return;
+    await DB.del('cq:' + id, true); S.community = S.community.filter(c => c.id !== id); toast('Question deleted.', 'ok'); render();
+  },
+  resend: async () => { try { await Auth.sendCode(S.login.email); toast('A new code is on its way.', 'ok'); } catch (e) { toast(friendly(e), 'bad'); } },
+  changeEmail: () => { S.login.step = 'email'; render(); },
+  pickAvatar: () => { const f = $('#avfile'); if (f) f.click(); },
+  removeAvatar: clearAvatar,
+  signout: async () => {
+    if (DB.mode === 'online') await Auth.signOut(); else await DB.del('session', false);
+    S.user = null; S.screen = 'login'; S.sheet = null; S.login = { step: 'email', email: '', name: '' }; render();
+  }
+};
+async function refreshBoard(show) {
+  await loadBoard();
+  if (S.screen === 'main' && S.tab === 'board') { render(); if (show) toast('Leaderboard updated.', 'ok'); }
+}
+
+document.addEventListener('click', e => { const el = e.target.closest('[data-act]'); if (el && ACT[el.dataset.act]) ACT[el.dataset.act](el, e); });
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.id === 'bulkfile') handleFile(t.files[0]);
+  else if (t.id === 'avfile') { setAvatar(t.files[0]); t.value = ''; }
+  else if (t.id === 'f-unit' || t.id === 'b-unit') S.bankUnit = t.value;
+  else if (t.id === 'br-unit') { S.browseUnit = t.value; render(); }
+});
+document.addEventListener('keydown', e => {
+  if (e.target.matches('input,textarea,select')) { if (e.key === 'Enter' && S.screen === 'login' && e.target.matches('input')) doLogin(); return; }
+  if (S.screen !== 'play' || !G) return;
+  const k = e.key.toLowerCase();
+  if (!G.locked) { const i = '1234'.indexOf(k) >= 0 ? '1234'.indexOf(k) : 'abcd'.indexOf(k); if (k.length === 1 && i >= 0) pick(i); }
+  else if (e.key === 'Enter') { e.preventDefault(); nextQ(); }
+});
+
+(async function init() {
+  render();
+  DB.init();
+  await loadExternalQuestions();
+  try {
+    if (DB.mode === 'online') {
+      if (Auth.s && await Auth.fresh()) {
+        const u = await DB.get('user:' + Auth.s.user.id, false);
+        if (u) { u.pid = Auth.s.user.id; S.user = u; await Promise.all([loadBoard(), loadCommunity()]); S.screen = 'main'; }
+      }
+    } else {
+      const sess = await DB.get('session', false);
+      if (sess && sess.id) {
+        const u = await DB.get('user:' + sess.id, false);
+        if (u) { if (!u.pid) u.pid = await hashId(u.email); S.user = u; await Promise.all([loadBoard(), loadCommunity()]); S.screen = 'main'; }
+      }
+    }
+  } catch (e) { S.screen = 'login'; S.user = null; setTimeout(() => toast('Could not reach the server. Sign in again when you are online.', 'bad'), 300); }
+  S.ready = true; render();
+})();
+</script>
+</body>
+</html>
