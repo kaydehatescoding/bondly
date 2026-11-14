@@ -1,5 +1,5 @@
 # This is [Bondly]
-> **Duolingo, but instead of learning Spanish, you’re fighting for your academic life in STPM & A-Levels.**
+> Duolingo, but instead of learning Spanish, you’re fighting for your academic life in STPM & A-Levels.**
 
 Built purely for fun by two sleep-deprived students and a heavy dose of vibe-coding with Mr. AI 🤖✨.
 
