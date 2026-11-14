@@ -12,22 +12,9 @@ A gamified, bite-sized revision web app designed to make pre-university grinding
 * **Bite-Sized Drills:** Topic-by-topic micro-quizzes tailored for STPM & Cambridge A-Level syllabi.
 * **Streak & XP System:** Keep your study streak alive (so the virtual mascot doesn't come after you).
 * **Instant Feedback:** Learn why your answer was wrong before you make the same mistake on the actual paper.
-* **Zero Fluff:** Clean, fast, and built to be used on the train or 10 minutes before class.
+* **Zero Fluff:** Clean, fast, and built to be used on the train or 10 minutes before class or an exam...
 
 ### 🛠️ Built With
 * **Frontend:** [e.g., HTML / CSS / JS / React / Next.js]
 * **Backend & Auth:** [e.g., Supabase / Firebase]
 * **Co-Pilots:** ChatGPT, Claude, Gemini & questionable amounts of caffeine ☕
-
-### 🚀 Getting Started
-Want to run it locally or break our code?
-```bash
-# Clone the repo
-git clone [https://github.com/yourusername/your-repo-name.git](https://github.com/yourusername/your-repo-name.git)
-
-# Navigate into the folder
-cd your-repo-name
-
-# Install dependencies & run
-npm install
-npm run dev
